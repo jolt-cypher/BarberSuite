@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
 
   console.log('[Middleware Debug]', { hostname, currentHost, pathname })
 
-  // Se for um subdomínio (não é o root e não é 'www') e não estamos acessando rotas de API, _next, etc
+  // Se for um subdomínio (não é o root e não é 'www') e não estamos acessando rotas de API, _next ou telas administrativas
   if (
     currentHost !== 'localhost:3000' && 
     currentHost !== 'localhost' && 
@@ -69,7 +69,13 @@ export async function middleware(request: NextRequest) {
     currentHost !== 'www' &&
     !hostname.includes('vercel.app') && // Evitar tratar domínios de desenvolvimento/produção da Vercel como subdomínios de inquilinos
     !pathname.startsWith('/api') &&
-    !pathname.startsWith('/_next')
+    !pathname.startsWith('/_next') &&
+    !pathname.startsWith('/dashboard') &&
+    !pathname.startsWith('/login') &&
+    !pathname.startsWith('/signup') &&
+    !pathname.startsWith('/add-barbershop') &&
+    !pathname.startsWith('/forgot-password') &&
+    !pathname.startsWith('/reset-password')
   ) {
     // Reescrever a URL para a rota dinâmica do tenant: /b/[slug]
     const url = request.nextUrl.clone()
