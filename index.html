@@ -1,17 +1,17 @@
-<html lang="pt-BR" class="scroll-smooth">
+﻿<html lang="pt-BR" class="scroll-smooth">
 
 <head>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- SEO METADATA -->
-    <title>Vallen Barbearia | Barbearia Premium | Luxury Barbershop</title>
+    <title>Barber Suite | Barbearia Premium | Luxury Barbershop</title>
     <meta name="description"
-        content="Vallen Barbearia: A experiência definitiva em barbearia. Cortes de precisão, rituais de barba e atendimento premium.">
+        content="Barber Suite: A experiência definitiva em barbearia. Cortes de precisão, rituais de barba e atendimento premium.">
     <meta name="keywords" content="Barbearia, Barber Shop Brasil, Cortes Premium, Fade, Barba, Luxury Grooming">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Vallen Barbearia | Precisão &amp; Estilo">
+    <meta property="og:title" content="Barber Suite | Precisão &amp; Estilo">
     <meta property="og:description"
         content="A experiência definitiva em barbearia. Cortes de precisão e atendimento premium.">
     <meta property="og:image"
@@ -30,7 +30,7 @@
 {
   "@context": "https://schema.org",
   "@type": "BarberShop",
-  "name": "Vallen Barbearia",
+  "name": "Barber Suite",
   "image": "https://images.unsplash.com/photo-1621605815971-fbc98d665033",
   "telephone": "+5562984804310",
   "address": {
@@ -40,7 +40,7 @@
     "addressRegion": "GO",
     "addressCountry": "BR"
   },
-  "url": "https://vallenbarbearia.com.br",
+  "url": "https://barbersuite.com.br",
   "priceRange": "$$",
   "openingHoursSpecification": [
     {
@@ -51,8 +51,8 @@
     }
   ],
   "sameAs": [
-    "https://www.instagram.com/vallenbarbearia",
-    "https://www.facebook.com/vallenbarbearia"
+    "https://www.instagram.com/barbersuite",
+    "https://www.facebook.com/barbersuite"
   ]
 }
 </script>
@@ -377,7 +377,7 @@
         <a href="#" id="logo"
             class="font-display text-2xl tracking-tighter uppercase font-semibold text-white z-50 flex items-center gap-2 mix-blend-difference">
             <iconify-icon icon="game-icons:razor" width="32"></iconify-icon>
-            VALLEN<span class="font-light opacity-70 ml-1">BARBEARIA</span>
+            BARBER<span class="font-light opacity-70 ml-1">SUITE</span>
         </a>
 
         <!-- Desktop Menu -->
@@ -967,7 +967,7 @@
                     <br><span class="text-[#d8c3a5] italic font-serif lowercase">moderno</span>
                 </h2>
                 <p class="text-neutral-300 text-base font-light leading-relaxed mb-6">
-                    A Vallen Barbearia nasceu da paixão pela autêntica barbearia clássica. Mais do que um simples corte
+                    A Barber Suite nasceu da paixão pela autêntica barbearia clássica. Mais do que um simples corte
                     de cabelo ou barba, oferecemos uma experiência de cuidado pessoal premium em um ambiente pensado
                     para o seu conforto.
                 </p>
@@ -1210,8 +1210,8 @@
                 <a href="#"
                     class="bg-[#d8c3a5] text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors flex items-center gap-2">
                     <iconify-icon icon="mdi:instagram" width="18"></iconify-icon>
-                    <span data-lang="pt">Siga @vallenbarbearia</span><span data-lang="en" class="hidden">Follow
-                        @vallenbarbearia</span>
+                    <span data-lang="pt">Siga @barbersuite</span><span data-lang="en" class="hidden">Follow
+                        @barbersuite</span>
                 </a>
             </div>
         </div>
@@ -1268,7 +1268,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
                 <!-- Brand -->
                 <div>
-                    <h4 class="font-display text-3xl uppercase mb-6 tracking-tighter">VALLEN<span
+                    <h4 class="font-display text-3xl uppercase mb-6 tracking-tighter">BARBER<span
                             class="font-light opacity-70">BARBEARIA</span></h4>
                     <p class="text-neutral-400 text-sm font-light leading-relaxed mb-6 max-w-xs">
                         Elevando o padrão da barbearia. Um espaço onde a tradição encontra o estilo moderno.
@@ -1313,7 +1313,7 @@
 
             <div
                 class="border-t border-neutral-900 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-600">
-                <p>© 2024 Vallen Barbearia. Todos os direitos reservados.</p>
+                <p>© 2024 Barber Suite. Todos os direitos reservados.</p>
                 <p>Designed for Excellence.</p>
             </div>
         </div>
@@ -1684,6 +1684,43 @@
         document.querySelectorAll('.btn-agendar, #btnAgendarHero, [href="#reservas"]').forEach(el => {
             if (el.tagName === 'BUTTON' || el.classList.contains('btn-agendar')) el.addEventListener('click', (e) => { e.preventDefault(); abrirModal(); });
         });
+
+        // Quick Booking Form Logic
+        const confirmBtn = document.getElementById('confirm-btn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => {
+                const n = document.getElementById('booking-name').value;
+                const t = document.getElementById('booking-phone').value;
+                const b = document.getElementById('booking-barber').value;
+                const s = document.getElementById('booking-service').value;
+                const d = document.getElementById('date-display').value;
+                const h = document.getElementById('booking-time').value;
+
+                if (!n || !t || !b || !s || !d || !h || b === 'BARBEIRO / BARBER' || s === 'SERVIÇO / SERVICE' || h === 'HORA / TIME') {
+                    return alert('Por favor, preencha todos os campos do agendamento rápido.');
+                }
+
+                const a = getAgenda(b); 
+                if (!a[d]) a[d] = gerarSlots();
+                a[d][h] = { status: 'reservado', cliente: n, tel: t }; 
+                localStorage.setItem('agenda_' + b, JSON.stringify(a));
+
+                fetch(WEBHOOK, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ nome: n, telefone: t, servico: s, data: d, hora: h, barbeiro: b }) 
+                });
+
+                alert('Agendamento rápido confirmado com sucesso!');
+                
+                document.getElementById('booking-name').value = '';
+                document.getElementById('booking-phone').value = '';
+                document.getElementById('booking-barber').value = '';
+                document.getElementById('booking-service').value = 'Corte + Lavagem';
+                document.getElementById('date-display').value = '';
+                document.getElementById('booking-time').value = '';
+            });
+        }
 
         // Reviews functionality
         function carregarAvaliacoesSalvas() {

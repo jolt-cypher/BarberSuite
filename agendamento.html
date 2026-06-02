@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vallen Barbearia | Sistema de Gestão Admin</title>
+    <title>Barber Suite | Sistema de Gestão Admin</title>
     
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -188,7 +188,7 @@
         <div class="h-20 flex items-center justify-center md:justify-start md:px-6 border-b border-neutral-900">
             <a href="index.html" id="logo-admin" class="font-display text-xl md:text-2xl tracking-tighter uppercase font-semibold text-white flex items-center gap-2">
                 <iconify-icon icon="game-icons:razor" width="28" class="text-gold"></iconify-icon>
-                <span class="hidden md:block">VALLEN<span class="font-light opacity-70 ml-1">ADMIN</span></span>
+                <span class="hidden md:block">BARBER<span class="font-light opacity-70 ml-1">ADMIN</span></span>
             </a>
         </div>
 
@@ -1140,7 +1140,7 @@
             <div class="text-center mb-6">
                 <iconify-icon icon="solar:bill-list-bold-duotone" width="45" class="text-gold mx-auto mb-2"></iconify-icon>
                 <h3 class="font-display text-lg uppercase tracking-wider font-bold text-white">Comprovante Fiscal</h3>
-                <p class="text-[10px] text-neutral-500">Vallen Barbearia Ltda.</p>
+                <p class="text-[10px] text-neutral-500">Barber Suite Ltda.</p>
             </div>
             <div class="border-t border-dashed border-neutral-800 py-4 space-y-3 text-xs text-neutral-400" id="receipt-details-body">
                 <!-- Receipt elements built programmatically -->
@@ -1171,11 +1171,11 @@
         }
 
         function getDB(key) {
-            return JSON.parse(localStorage.getItem('vallen_' + key) || '[]');
+            return JSON.parse(localStorage.getItem('barbersuite_' + key) || '[]');
         }
 
         function setDB(key, data) {
-            localStorage.setItem('vallen_' + key, JSON.stringify(data));
+            localStorage.setItem('barbersuite_' + key, JSON.stringify(data));
         }
 
         function initializeMockData() {
@@ -1238,7 +1238,7 @@
             // Seed Products
             if (getDB('products').length === 0) {
                 const seedProducts = [
-                    {id: "p1", sku: "SH-VAL-001", name: "Shampoo Premium Vallen", quantity: 12, salePrice: "45,00", costPrice: "20,00", expiry: "2027-12-31", supplier: "L'Oréal Distribuidora", description: "Força e tonificação capilar."},
+                    {id: "p1", sku: "SH-VAL-001", name: "Shampoo Premium Barber Suite", quantity: 12, salePrice: "45,00", costPrice: "20,00", expiry: "2027-12-31", supplier: "L'Oréal Distribuidora", description: "Força e tonificação capilar."},
                     {id: "p2", sku: "PM-MAT-002", name: "Pomada Modeladora Matte", quantity: 3, salePrice: "35,00", costPrice: "15,00", expiry: "2027-06-30", supplier: "Barber Pro Co.", description: "Fixação forte e efeito matte seco. ESTOQUE CRÍTICO!"},
                     {id: "p3", sku: "OL-BAR-003", name: "Óleo Hidratante de Barba", quantity: 15, salePrice: "40,00", costPrice: "18,00", expiry: "2028-01-15", supplier: "Barber Pro Co.", description: "Hidratação de fios rebeldes."},
                     {id: "p4", sku: "CD-CAB-004", name: "Condicionador Cabelo & Barba", quantity: 2, salePrice: "50,00", costPrice: "22,00", expiry: "2027-09-30", supplier: "L'Oréal Distribuidora", description: "ESTOQUE CRÍTICO!"}
@@ -1250,7 +1250,7 @@
             if (getDB('sales').length === 0) {
                 const seedSales = [
                     {id: "v1", product: "Corte + Barba", date: "2026-05-18T14:30:00", barber: "jose", customer: "Carlos Eduardo", paymentMethod: "Cartão", amount: "90.00"},
-                    {id: "v2", product: "Shampoo Premium Vallen", date: "2026-05-18T10:15:00", barber: "pablo", customer: "Marcos Silva", paymentMethod: "PIX", amount: "45.00"},
+                    {id: "v2", product: "Shampoo Premium Barber Suite", date: "2026-05-18T10:15:00", barber: "pablo", customer: "Marcos Silva", paymentMethod: "PIX", amount: "45.00"},
                     {id: "v3", product: "Fade Clássico", date: "2026-05-17T11:00:00", barber: "pablo", customer: "Rafael Martins", paymentMethod: "Cartão", amount: "50.00"},
                     {id: "v4", product: "Pomada Modeladora Matte", date: "2026-05-17T16:20:00", barber: "jose", customer: "Luciano Huck", paymentMethod: "Dinheiro", amount: "35.00"},
                     {id: "v5", product: "Full Experience", date: "2026-05-16T18:00:00", barber: "jose", customer: "Gabriel Medina", paymentMethod: "PIX", amount: "80.00"}
@@ -1365,7 +1365,7 @@
                 leftDiv.innerHTML = `
                     <div class="flex items-center gap-2">
                         <iconify-icon icon="mdi:whatsapp" width="24" class="text-green-500"></iconify-icon>
-                        <h2 class="font-display text-lg uppercase tracking-wide text-white">Canal WhatsApp Vallen</h2>
+                        <h2 class="font-display text-lg uppercase tracking-wide text-white">Canal WhatsApp Barber Suite</h2>
                     </div>
                 `;
                 rightDiv.innerHTML = `
@@ -1406,7 +1406,7 @@
             }
             else if (sectionId === 'assinaturas') {
                 leftDiv.innerHTML = `
-                    <h2 class="font-display text-lg uppercase tracking-wide text-white">Clube de Assinaturas Vallen</h2>
+                    <h2 class="font-display text-lg uppercase tracking-wide text-white">Clube de Assinaturas Barber Suite</h2>
                 `;
                 rightDiv.innerHTML = `
                     <button onclick="abrirModalAssinatura()" class="premium-btn flex items-center gap-2">
@@ -1962,7 +1962,7 @@
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
             link.setAttribute("href", url);
-            link.setAttribute("download", "relatorio_vendas_vallen.csv");
+            link.setAttribute("download", "relatorio_vendas_barbersuite.csv");
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -3052,3 +3052,4 @@
     </script>
 </body>
 </html>
+
