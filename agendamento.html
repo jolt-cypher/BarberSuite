@@ -1171,11 +1171,11 @@
         }
 
         function getDB(key) {
-            return JSON.parse(localStorage.getItem('barbersuite_' + key) || '[]');
+            return JSON.parse(localStorage.getItem('barbersuite_v2_' + key) || '[]');
         }
 
         function setDB(key, data) {
-            localStorage.setItem('barbersuite_' + key, JSON.stringify(data));
+            localStorage.setItem('barbersuite_v2_' + key, JSON.stringify(data));
         }
 
         function initializeMockData() {
@@ -1248,35 +1248,19 @@
 
             // Seed Sales
             if (getDB('sales').length === 0) {
-                const seedSales = [
-                    {id: "v1", product: "Corte + Barba", date: "2026-05-18T14:30:00", barber: "jose", customer: "Carlos Eduardo", paymentMethod: "Cartão", amount: "90.00"},
-                    {id: "v2", product: "Shampoo Premium Barber Suite", date: "2026-05-18T10:15:00", barber: "pablo", customer: "Marcos Silva", paymentMethod: "PIX", amount: "45.00"},
-                    {id: "v3", product: "Fade Clássico", date: "2026-05-17T11:00:00", barber: "pablo", customer: "Rafael Martins", paymentMethod: "Cartão", amount: "50.00"},
-                    {id: "v4", product: "Pomada Modeladora Matte", date: "2026-05-17T16:20:00", barber: "jose", customer: "Luciano Huck", paymentMethod: "Dinheiro", amount: "35.00"},
-                    {id: "v5", product: "Full Experience", date: "2026-05-16T18:00:00", barber: "jose", customer: "Gabriel Medina", paymentMethod: "PIX", amount: "80.00"}
-                ];
+                const seedSales = [];
                 setDB('sales', seedSales);
             }
 
             // Seed Subscriptions
             if (getDB('subscriptions').length === 0) {
-                const seedSubs = [
-                    {id: "sub1", customer: "Carlos Eduardo", type: "Corte + Barba", amount: "90.00", startDate: "2026-01-01", renewalDate: "2026-06-01", status: "Ativo", frequency: "quinzenal", barber: "jose", notes: "Assinante assíduo."},
-                    {id: "sub2", customer: "Rafael M.", type: "Full Experience", amount: "150.00", startDate: "2026-02-15", renewalDate: "2026-06-01", status: "Vencendo", frequency: "quinzenal", barber: "jose", notes: "Avisar sobre o boleto."},
-                    {id: "sub3", customer: "Marcos Silva", type: "Barba Premium", amount: "70.00", startDate: "2026-03-01", renewalDate: "2026-06-01", status: "Ativo", frequency: "semanal", barber: "pablo", notes: "Gosta da toalha bem quente."}
-                ];
+                const seedSubs = [];
                 setDB('subscriptions', seedSubs);
             }
 
             // Seed Expenses
             if (getDB('expenses').length === 0) {
-                const seedExpenses = [
-                    {id: "e1", category: "Aluguel", description: "Aluguel do ponto comercial", amount: "2000.00", paymentMethod: "Boleto", date: "2026-05-05", receipt: "comprovante_aluguel.pdf"},
-                    {id: "e2", category: "Funcionários", description: "Comissão dos profissionais", amount: "1200.00", paymentMethod: "PIX", date: "2026-05-15", receipt: ""},
-                    {id: "e3", category: "Luz", description: "Conta de Energia Elétrica", amount: "450.00", paymentMethod: "Dinheiro", date: "2026-05-10", receipt: ""},
-                    {id: "e4", category: "Fornecedores", description: "Compra de lâminas e espumas", amount: "380.00", paymentMethod: "Cartão", date: "2026-05-12", receipt: ""},
-                    {id: "e5", category: "Outro", description: "Reparos no encanamento principal", amount: "150.00", paymentMethod: "PIX", date: "2026-05-14", receipt: ""}
-                ];
+                const seedExpenses = [];
                 setDB('expenses', seedExpenses);
             }
         }
@@ -1726,26 +1710,7 @@
         }
 
         // ------------------ SECTION 2: WHATSAPP SIMULATION ------------------
-        const MOCK_CHATS = [
-            { id: "c1", name: "Carlos Eduardo", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop", lastMsg: "Quero agendar pro próximo sábado também", time: "14:32", unread: 2, messages: [
-                { type: "received", text: "Olá! Gostei muito do corte de hoje.", time: "14:30" },
-                { type: "sent", text: "Ficamos extremamente felizes em ouvir isso, Carlos!", time: "14:31" },
-                { type: "received", text: "Quero agendar pro próximo sábado também no mesmo horário, consegue?", time: "14:32" }
-            ]},
-            { id: "c2", name: "Marcos Silva", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop", lastMsg: "Confirmado pro ritual de barba?", time: "10:18", unread: 1, messages: [
-                { type: "received", text: "Fala mestre! Confirmado pro ritual de barba de amanhã?", time: "10:18" }
-            ]},
-            { id: "c3", name: "Rafael Martins", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop", lastMsg: "Já realizei o pagamento via Pix", time: "Ontem", unread: 0, messages: [
-                { type: "received", text: "Boa tarde! Já realizei o pagamento via Pix do plano.", time: "Ontem" }
-            ]},
-            { id: "c4", name: "Thiago B.", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150&auto=format&fit=crop", lastMsg: "Qual a melhor pomada modeladora matte?", time: "Ontem", unread: 2, messages: [
-                { type: "received", text: "Dica rápida: Qual a melhor pomada modeladora matte de vocês?", time: "Ontem" }
-            ]},
-            { id: "c5", name: "Lucas S.", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=150&auto=format&fit=crop", lastMsg: "Obrigado, até logo!", time: "2 dias atrás", unread: 0, messages: [
-                { type: "sent", text: "Seu horário está confirmado com o José.", time: "2 dias atrás" },
-                { type: "received", text: "Obrigado, até logo!", time: "2 dias atrás" }
-            ]}
-        ];
+        const MOCK_CHATS = [];
 
         let selectedChatId = "c1";
 
@@ -3052,4 +3017,6 @@
     </script>
 </body>
 </html>
+
+
 
