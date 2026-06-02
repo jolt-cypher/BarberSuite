@@ -1,9 +1,10 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Gift, Award, TrendingUp, Sparkles, Settings2, CheckCircle2 } from 'lucide-react'
 
 // --- Mock Data ---
-const KPIs = [
+const MOCK_KPIs = [
   { label: 'Clientes no Programa', value: '89', icon: Award, color: 'text-purple-400' },
   { label: 'Resgates este Mês', value: '14', icon: Gift, color: 'text-[#ffffff]' },
   { label: 'Serviços Grátis Pendentes', value: '7', icon: Sparkles, color: 'text-blue-400' },
@@ -20,6 +21,24 @@ const MOCK_LOYALTY = [
 ]
 
 export default function LoyaltyPage() {
+  const [isDemoMode, setIsDemoMode] = useState(false)
+  const [loyaltyList, setLoyaltyList] = useState<any[]>([])
+
+  useEffect(() => {
+    const isDemo = document.cookie.includes('demo-mode=true')
+    setIsDemoMode(isDemo)
+    if (isDemo) {
+      setLoyaltyList(MOCK_LOYALTY)
+    }
+  }, [])
+
+  const kpis = isDemoMode ? MOCK_KPIs : [
+    { label: 'Clientes no Programa', value: '0', icon: Award, color: 'text-purple-400' },
+    { label: 'Resgates este Mês', value: '0', icon: Gift, color: 'text-[#ffffff]' },
+    { label: 'Serviços Grátis Pendentes', value: '0', icon: Sparkles, color: 'text-blue-400' },
+    { label: 'Taxa de Retenção', value: '0%', icon: TrendingUp, color: 'text-green-400' },
+  ]
+
   return (
     <div className="flex flex-col gap-8 p-6 min-h-full" style={{ background: '#030303' }}>
       {/* Header */}
@@ -36,7 +55,7 @@ export default function LoyaltyPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {KPIs.map((kpi, i) => (
+        {kpis.map((kpi, i) => (
           <div key={i} className="premium-card p-6 flex flex-col gap-2">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
@@ -45,7 +64,7 @@ export default function LoyaltyPage() {
               <span className="text-sm font-semibold uppercase tracking-wider text-neutral-400">{kpi.label}</span>
             </div>
             <div className="flex items-end justify-between mt-2">
-              <span className="text-3xl font-[family-name:var(--font-display)] font-bold text-white">{kpi.value}</span>
+              <span className="text-2xl font-[family-name:var(--font-display)] font-bold text-white">{kpi.value}</span>
             </div>
           </div>
         ))}
@@ -71,7 +90,7 @@ export default function LoyaltyPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {MOCK_LOYALTY.map((client, idx) => {
+                {loyaltyList.map((client, idx) => {
                   const isReady = client.visits >= client.target;
                   const progressPct = Math.min(100, (client.visits / client.target) * 100);
 
@@ -98,7 +117,7 @@ export default function LoyaltyPage() {
                       <td className="p-4 text-center">
                         {isReady ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-[#ffffff]/10 text-[#ffffff] border-[#ffffff]/20 animate-pulse">
-                            <Sparkles size={10} /> Resgate Disponível!
+                            <Sparkles size={10} /> Resgate Disp.
                           </span>
                         ) : (
                           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-white/5 text-neutral-400 border-white/10">
@@ -116,6 +135,13 @@ export default function LoyaltyPage() {
                     </tr>
                   )
                 })}
+                {loyaltyList.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="p-12 text-center text-neutral-500 italic text-xs">
+                      Nenhum cliente cadastrado no programa de fidelidade ainda.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
