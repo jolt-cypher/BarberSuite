@@ -169,6 +169,8 @@ export default function AddBarbershopPage() {
           address: formData.address,
           phone: formData.phone,
           tagline: formData.description,
+          plan: 'pro',
+          plan_status: 'active',
         })
 
         if (dbError) {
