@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Users, Clock, Zap, Check, X, Plus } from 'lucide-react'
 
 // --- Mock Data ---
-const KPIs = [
+const MOCK_KPIs = [
   { label: 'Na Fila Agora', value: '3', icon: Users, color: 'text-blue-400' },
   { label: 'Tempo Médio de Espera', value: '24 min', icon: Clock, color: 'text-[#ffffff]' },
   { label: 'Convertidos Hoje', value: '8', icon: Zap, color: 'text-green-400' },
@@ -25,11 +25,28 @@ const MOCK_HISTORY = [
 ]
 
 export default function WaitlistPage() {
-  const [waitlist, setWaitlist] = useState(MOCK_WAITLIST)
-  
+  const [isDemoMode, setIsDemoMode] = useState(false)
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
+  const [history, setHistory] = useState<any[]>([])
+
+  useEffect(() => {
+    const isDemo = document.cookie.includes('demo-mode=true')
+    setIsDemoMode(isDemo)
+    if (isDemo) {
+      setWaitlist(MOCK_WAITLIST)
+      setHistory(MOCK_HISTORY)
+    }
+  }, [])
+
   const handleRemove = (id: string) => {
     setWaitlist(waitlist.filter(w => w.id !== id).map((w, idx) => ({ ...w, position: idx + 1 })))
   }
+
+  const kpis = isDemoMode ? MOCK_KPIs : [
+    { label: 'Na Fila Agora', value: String(waitlist.length), icon: Users, color: 'text-blue-400' },
+    { label: 'Tempo Médio de Espera', value: '0 min', icon: Clock, color: 'text-[#ffffff]' },
+    { label: 'Convertidos Hoje', value: '0', icon: Zap, color: 'text-green-400' },
+  ]
 
   return (
     <div className="flex flex-col gap-8 p-6 min-h-full" style={{ background: '#030303' }}>
@@ -47,7 +64,7 @@ export default function WaitlistPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {KPIs.map((kpi, i) => (
+        {kpis.map((kpi, i) => (
           <div key={i} className="premium-card p-6 flex flex-col gap-2">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
@@ -95,7 +112,7 @@ export default function WaitlistPage() {
                   
                   <div className="flex flex-col items-end gap-3">
                     <div className="text-right">
-                      <p className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Espera Atual</p>
+                      <p className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Espera Aut.</p>
                       <p className="text-sm font-bold text-red-400 animate-pulse">{entry.waitTime}</p>
                     </div>
                     <div className="flex gap-2">
@@ -177,7 +194,7 @@ export default function WaitlistPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {MOCK_HISTORY.map((hist) => (
+              {history.map((hist) => (
                 <tr key={hist.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="p-4 font-medium text-white">{hist.name}</td>
                   <td className="p-4 text-sm" style={{ color: 'rgba(200,207,224,0.6)' }}>{hist.service}</td>
@@ -191,6 +208,13 @@ export default function WaitlistPage() {
                   </td>
                 </tr>
               ))}
+              {history.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-neutral-500 italic text-xs">
+                    Nenhum registro no histórico hoje.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
