@@ -14,6 +14,7 @@ export default function AddBarbershopPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [globalError, setGlobalError] = useState('')
+  const [currentUser, setCurrentUser] = useState<any>(null)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -38,6 +39,20 @@ export default function AddBarbershopPage() {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setCurrentUser(user)
+        setFormData(prev => ({
+          ...prev,
+          adminEmail: user.email || '',
+        }))
+      }
+    })
+  }, [])
 
   useEffect(() => {
     // Generate slug from name
@@ -74,11 +89,13 @@ export default function AddBarbershopPage() {
       if (!formData.slug.trim()) newErrors.slug = 'Slug is required'
       else if (!/^[a-z0-9-]+$/.test(formData.slug)) newErrors.slug = 'Slug can only contain lowercase letters, numbers, and hyphens'
       
-      if (!formData.adminEmail.trim()) newErrors.adminEmail = 'Admin email is required'
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.adminEmail)) newErrors.adminEmail = 'Invalid email format'
-      
-      if (!formData.password) newErrors.password = 'Password is required'
-      else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
+      if (!currentUser) {
+        if (!formData.adminEmail.trim()) newErrors.adminEmail = 'Admin email is required'
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.adminEmail)) newErrors.adminEmail = 'Invalid email format'
+        
+        if (!formData.password) newErrors.password = 'Password is required'
+        else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
+      }
     }
 
     if (step === 2) {
@@ -92,6 +109,17 @@ export default function AddBarbershopPage() {
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[field]
+        return newErrors
+      })
+    }
   }
 
   const nextStep = () => {
@@ -112,22 +140,24 @@ export default function AddBarbershopPage() {
 
     try {
       const supabase = createClient()
-      
-      // 1. Attempt auth signup in Supabase
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.adminEmail,
-        password: formData.password,
-        options: {
-          data: {
-            barbershop_name: formData.name,
-            slug: formData.slug,
-          }
-        }
-      })
+      let userId = currentUser?.id
 
-      if (signUpError) throw new Error(signUpError.message)
-      
-      const userId = authData.user?.id
+      if (!userId) {
+        // 1. Attempt auth signup in Supabase
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email: formData.adminEmail,
+          password: formData.password,
+          options: {
+            data: {
+              barbershop_name: formData.name,
+              slug: formData.slug,
+            }
+          }
+        })
+
+        if (signUpError) throw new Error(signUpError.message)
+        userId = authData.user?.id
+      }
 
       // 2. Insert row in barbershops table
       if (userId) {
@@ -147,20 +177,26 @@ export default function AddBarbershopPage() {
         }
       }
 
-      // 3. Try to sign in automatically
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: formData.adminEmail,
-        password: formData.password,
-      })
+      // 3. Try to sign in automatically if not already logged in
+      if (!currentUser) {
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.adminEmail,
+          password: formData.password,
+        })
 
-      setLoading(false)
+        setLoading(false)
 
-      if (!signInError && signInData?.session) {
+        if (!signInError && signInData?.session) {
+          router.push('/dashboard')
+          router.refresh()
+        } else {
+          // Show success status even if we cannot log in due to email verification
+          setGlobalError('Conta criada com sucesso! Por favor, verifique seu e-mail para confirmar seu cadastro antes de acessar o painel.')
+        }
+      } else {
+        setLoading(false)
         router.push('/dashboard')
         router.refresh()
-      } else {
-        // Show success status even if we cannot log in due to email verification
-        setGlobalError('Conta criada com sucesso! Por favor, verifique seu e-mail para confirmar seu cadastro antes de acessar o painel.')
       }
     } catch (err: any) {
       setGlobalError(err.message || 'Failed to create barbershop. Please try again.')
@@ -232,7 +268,7 @@ export default function AddBarbershopPage() {
                   <div>
                     <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Barbershop Name</label>
                     <input type="text" placeholder="Your barbershop name" 
-                      value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                      value={formData.name} onChange={e => handleChange('name', e.target.value)}
                       className={`w-full bg-white/5 border ${errors.name ? 'border-red-500' : 'border-white/10 focus:border-white/20'} rounded-xl text-white px-4 py-3 text-sm transition-all outline-none`} />
                     {errors.name && <p className="text-red-400 text-[10px] mt-1">{errors.name}</p>}
                   </div>
@@ -241,7 +277,7 @@ export default function AddBarbershopPage() {
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-neutral-500 text-sm">app.barbesuite.com/</span>
                       <input type="text" 
-                        value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})}
+                        value={formData.slug} onChange={e => handleChange('slug', e.target.value)}
                         className={`w-full bg-white/5 border ${errors.slug ? 'border-red-500' : 'border-white/10 focus:border-white/20'} rounded-xl text-white pl-[150px] pr-4 py-3 text-sm transition-all outline-none`} />
                     </div>
                     {errors.slug && <p className="text-red-400 text-[10px] mt-1">{errors.slug}</p>}
@@ -249,17 +285,21 @@ export default function AddBarbershopPage() {
                   <div>
                     <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Admin Email</label>
                     <input type="email" placeholder="admin@example.com" 
-                      value={formData.adminEmail} onChange={e => setFormData({...formData, adminEmail: e.target.value})}
-                      className={`w-full bg-white/5 border ${errors.adminEmail ? 'border-red-500' : 'border-white/10 focus:border-white/20'} rounded-xl text-white px-4 py-3 text-sm transition-all outline-none`} />
+                      value={formData.adminEmail} onChange={e => handleChange('adminEmail', e.target.value)}
+                      disabled={!!currentUser}
+                      className={`w-full bg-white/5 border ${errors.adminEmail ? 'border-red-500' : 'border-white/10 focus:border-white/20'} rounded-xl text-white px-4 py-3 text-sm transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed`} />
                     {errors.adminEmail && <p className="text-red-400 text-[10px] mt-1">{errors.adminEmail}</p>}
+                    {currentUser && <p className="text-green-400 text-[10px] mt-1">Conectado com sua conta existente</p>}
                   </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Password</label>
-                    <input type="password" placeholder="Min 8 characters" 
-                      value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}
-                      className={`w-full bg-white/5 border ${errors.password ? 'border-red-500' : 'border-white/10 focus:border-white/20'} rounded-xl text-white px-4 py-3 text-sm transition-all outline-none`} />
-                    {errors.password && <p className="text-red-400 text-[10px] mt-1">{errors.password}</p>}
-                  </div>
+                  {!currentUser && (
+                    <div>
+                      <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Password</label>
+                      <input type="password" placeholder="Min 8 characters" 
+                        value={formData.password} onChange={e => handleChange('password', e.target.value)}
+                        className={`w-full bg-white/5 border ${errors.password ? 'border-red-500' : 'border-white/10 focus:border-white/20'} rounded-xl text-white px-4 py-3 text-sm transition-all outline-none`} />
+                      {errors.password && <p className="text-red-400 text-[10px] mt-1">{errors.password}</p>}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -281,14 +321,14 @@ export default function AddBarbershopPage() {
                       <div className="flex-1">
                         <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Primary Color</label>
                         <div className="flex items-center gap-3">
-                          <input type="color" value={formData.primaryColor} onChange={e => setFormData({...formData, primaryColor: e.target.value})} className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0" />
+                          <input type="color" value={formData.primaryColor} onChange={e => handleChange('primaryColor', e.target.value)} className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0" />
                           <span className="text-sm font-mono text-neutral-300 uppercase">{formData.primaryColor}</span>
                         </div>
                       </div>
                       <div className="flex-1">
                         <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Secondary Color</label>
                         <div className="flex items-center gap-3">
-                          <input type="color" value={formData.secondaryColor} onChange={e => setFormData({...formData, secondaryColor: e.target.value})} className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0" />
+                          <input type="color" value={formData.secondaryColor} onChange={e => handleChange('secondaryColor', e.target.value)} className="w-10 h-10 rounded cursor-pointer bg-transparent border-0 p-0" />
                           <span className="text-sm font-mono text-neutral-300 uppercase">{formData.secondaryColor}</span>
                         </div>
                       </div>
@@ -318,20 +358,20 @@ export default function AddBarbershopPage() {
                   <div>
                     <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Address</label>
                     <input type="text" placeholder="123 Main St, City, Country" 
-                      value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
+                      value={formData.address} onChange={e => handleChange('address', e.target.value)}
                       className={`w-full bg-white/5 border ${errors.address ? 'border-red-500' : 'border-white/10 focus:border-white/20'} rounded-xl text-white px-4 py-3 text-sm transition-all outline-none`} />
                     {errors.address && <p className="text-red-400 text-[10px] mt-1">{errors.address}</p>}
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Phone Number</label>
                     <input type="tel" placeholder="+1 234 567 8900" 
-                      value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
+                      value={formData.phone} onChange={e => handleChange('phone', e.target.value)}
                       className="w-full bg-white/5 border border-white/10 focus:border-white/20 rounded-xl text-white px-4 py-3 text-sm transition-all outline-none" />
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">Description</label>
                     <textarea placeholder="Tell us about your shop..." rows={3}
-                      value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
+                      value={formData.description} onChange={e => handleChange('description', e.target.value)}
                       className="w-full bg-white/5 border border-white/10 focus:border-white/20 rounded-xl text-white px-4 py-3 text-sm transition-all outline-none resize-none"></textarea>
                     <div className="text-[10px] text-neutral-500 mt-1 text-right">{formData.description.length}/500</div>
                   </div>
