@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { X, Calendar, Clock, User, Scissors, CheckCircle, ArrowLeft } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
@@ -32,6 +32,10 @@ export default function BookingModal({
   const [clientData, setClientData] = useState({ name: '', phone: '', email: '' })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  // Availability
+  const [availableTimes, setAvailableTimes] = useState<string[]>([])
+  const [loadingTimes, setLoadingTimes] = useState(false)
 
   if (!isOpen) return null
 
@@ -78,8 +82,78 @@ export default function BookingModal({
     return d
   })
 
-  // Mock times
-  const times = ['09:00', '09:30', '10:00', '10:30', '11:00', '14:00', '14:30', '15:00', '15:30', '16:00']
+  // Base times for a day (09:00 to 18:00 every 30 mins)
+  const baseTimes = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00']
+
+  useEffect(() => {
+    if (selectedDate && step === 3) {
+      fetchAvailableTimes()
+    }
+  }, [selectedDate, step, selectedBarber, selectedService])
+
+  const fetchAvailableTimes = async () => {
+    setLoadingTimes(true)
+    try {
+      // Setup date boundaries for the selected day
+      const startDate = new Date(`${selectedDate}T00:00:00-03:00`).toISOString()
+      const endDate = new Date(`${selectedDate}T23:59:59-03:00`).toISOString()
+
+      let query = supabase
+        .from('appointments')
+        .select('scheduled_at, service_id') // we ideally would join services to get duration, but for now we'll assume standard duration if not found
+        .eq('barbershop_id', barbershop.id)
+        .gte('scheduled_at', startDate)
+        .lte('scheduled_at', endDate)
+        .in('status', ['pending', 'confirmed'])
+
+      if (selectedBarber && selectedBarber.id !== 'any') {
+        query = query.eq('barber_id', selectedBarber.id)
+      }
+
+      const { data, error } = await query
+
+      if (error) throw error
+
+      const bookedSlots = (data || []).map(appt => {
+        const time = new Date(appt.scheduled_at)
+        const minutes = time.getHours() * 60 + time.getMinutes()
+        // Assuming average duration of 45 mins for booked slots if we don't have the exact service duration
+        return { start: minutes, end: minutes + 45 }
+      })
+
+      const serviceDuration = selectedService?.duration_min || 45
+
+      const freeTimes = baseTimes.filter(time => {
+        const [h, m] = time.split(':').map(Number)
+        const slotStart = h * 60 + m
+        const slotEnd = slotStart + serviceDuration
+
+        // Check if this slot overlaps with any booked slot
+        const hasOverlap = bookedSlots.some(booked => {
+          return (slotStart < booked.end && slotEnd > booked.start)
+        })
+
+        // Check if time is in the past if it's today
+        const today = new Date()
+        const isToday = selectedDate === today.toISOString().split('T')[0]
+        const nowMinutes = today.getHours() * 60 + today.getMinutes()
+        
+        // Require at least 30 min advance booking for today
+        if (isToday && slotStart <= nowMinutes + 30) {
+           return false 
+        }
+
+        return !hasOverlap
+      })
+
+      setAvailableTimes(freeTimes)
+    } catch (err) {
+      console.error('Error fetching times:', err)
+      setAvailableTimes(baseTimes) // Fallback to all times on error
+    } finally {
+      setLoadingTimes(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -202,21 +276,31 @@ export default function BookingModal({
               {selectedDate && (
                 <>
                   <p className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 font-bold animate-fade-in-up">Horários Disponíveis</p>
-                  <div className="grid grid-cols-3 gap-2 animate-fade-in-up">
-                    {times.map((time, i) => (
-                      <button
-                        key={i}
-                        onClick={() => { setSelectedTime(time); handleNext() }}
-                        className={`py-2 rounded-lg border text-sm font-medium transition-all ${
-                          selectedTime === time 
-                            ? 'border-[#ffffff] bg-[#ffffff] text-black' 
-                            : 'border-neutral-800 bg-neutral-900/50 text-white hover:border-[#ffffff]/50'
-                        }`}
-                      >
-                        {time}
-                      </button>
-                    ))}
-                  </div>
+                  {loadingTimes ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin w-6 h-6 rounded-full border-t-2 border-[#ffffff]"></div>
+                    </div>
+                  ) : availableTimes.length === 0 ? (
+                    <div className="text-center py-6 text-neutral-400 text-sm bg-neutral-900/50 rounded-xl border border-neutral-800">
+                      Nenhum horário disponível para esta data.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 animate-fade-in-up">
+                      {availableTimes.map((time, i) => (
+                        <button
+                          key={i}
+                          onClick={() => { setSelectedTime(time); handleNext() }}
+                          className={`py-2 rounded-lg border text-sm font-medium transition-all ${
+                            selectedTime === time 
+                              ? 'border-[#ffffff] bg-[#ffffff] text-black' 
+                              : 'border-neutral-800 bg-neutral-900/50 text-white hover:border-[#ffffff]/50'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </>
               )}
             </div>
