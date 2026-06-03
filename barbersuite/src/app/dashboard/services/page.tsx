@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Edit2, Trash2, Clock, DollarSign, Search, Scissors, ShieldAlert } from 'lucide-react'
+import { Plus, Edit2, Trash2, Clock, DollarSign, Search, Scissors, ShieldAlert, Store } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 
@@ -9,6 +9,7 @@ export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [barbershopId, setBarbershopId] = useState<string | null>(null)
+  const [noBarbershop, setNoBarbershop] = useState(false)
 
   // Form states
   const [name, setName] = useState('')
@@ -67,6 +68,7 @@ export default function ServicesPage() {
     if (shopId) {
       setBarbershopId(shopId)
     } else {
+      setNoBarbershop(true)
       setLoading(false)
     }
   }
@@ -197,6 +199,32 @@ export default function ServicesPage() {
 
   return (
     <div className="p-6">
+      {/* Barbearia não configurada */}
+      {noBarbershop && (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6">
+          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <Store size={28} className="text-neutral-400" />
+          </div>
+          <div>
+            <h2 className="text-white text-xl font-bold mb-2">Barbearia não configurada</h2>
+            <p className="text-neutral-400 text-sm max-w-md leading-relaxed">
+              Sua conta ainda não possui uma barbearia vinculada. Acesse as{' '}
+              <strong className="text-white">Configurações</strong> para configurar sua barbearia,
+              ou insira um registro na tabela{' '}
+              <code className="bg-white/10 px-1 rounded text-white">barbershops</code> com seu{' '}
+              <code className="bg-white/10 px-1 rounded text-white">owner_id</code>.
+            </p>
+          </div>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-left max-w-md w-full">
+            <p className="text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">SQL para corrigir</p>
+            <pre className="text-amber-300/70 text-xs leading-relaxed whitespace-pre-wrap font-mono">
+{`INSERT INTO barbershops (name, slug, owner_id)
+SELECT 'Minha Barbearia', 'minha-barbearia', id
+FROM auth.users LIMIT 1;`}
+            </pre>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
         <div>
@@ -236,9 +264,14 @@ export default function ServicesPage() {
           <h3 className="text-white text-lg font-bold">Nenhum serviço encontrado</h3>
           <p className="text-neutral-400 text-sm max-w-sm">
             {searchQuery
-              ? 'Nenhum serviço corresponde à sua pesquisa. Tente buscar por outro nome ou categoria.'
-              : 'Você ainda não cadastrou nenhum serviço nesta barbearia. Clique no botão "Novo Serviço" para começar!'}
+              ? 'Nenhum serviço corresponde à sua pesquisa.'
+              : 'Você ainda não cadastrou nenhum serviço. Clique em "Novo Serviço" para começar!'}
           </p>
+          {!searchQuery && (
+            <button onClick={handleCreateClick} className="btn-neon mt-2 py-2 text-xs">
+              <Plus size={16} /> Criar Primeiro Serviço
+            </button>
+          )}
         </div>
       ) : (
         /* Services Grid */

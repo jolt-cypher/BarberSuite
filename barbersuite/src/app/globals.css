@@ -144,6 +144,36 @@ h1, h2, h3, h4, .font-display {
   transform: translateY(-1px);
 }
 
+/* btn-neon: primary action button used throughout the dashboard */
+.btn-neon {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.btn-neon:hover {
+  background: #e5e5e5;
+  border-color: #e5e5e5;
+  transform: translateY(-1px);
+}
+
+.btn-neon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .btn-outline {
   background: transparent;
   color: #ffffff;
@@ -233,16 +263,11 @@ input:-webkit-autofill:active {
   margin: 0 auto;
 }
 
-/* ── Animate-in (login page) ── */
+/* ── Animate-in ── */
 .animate-in {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.55s ease-out, transform 0.55s ease-out;
-}
-
-.animate-in.visible {
   opacity: 1;
   transform: translateY(0);
+  animation: fadeInUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 /* ── Glow element (legacy, kept for login page) ── */
