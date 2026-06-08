@@ -39,6 +39,15 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [existingSession, setExistingSession] = useState(false)
+
+  // Check if there's already a logged-in session on mount
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setExistingSession(true)
+    })
+  }, [])
 
   // Auto-generate slug from barbershop name
   useEffect(() => {
@@ -77,7 +86,10 @@ export default function SignupPage() {
 
     const supabase = createClient()
 
-    // 1. Create auth user
+    // 1. Sign out any existing session first so we don't inherit another barbershop's account
+    await supabase.auth.signOut()
+
+    // 2. Create auth user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -100,7 +112,7 @@ export default function SignupPage() {
 
     const userId = authData.user?.id
 
-    // 2. Insert row in barbershops table
+    // 3. Insert row in barbershops table
     if (userId) {
       const { error: dbError } = await supabase.from('barbershops').insert({
         slug,
@@ -113,7 +125,7 @@ export default function SignupPage() {
       }
     }
 
-    // 3. Try to sign in automatically
+    // 4. Try to sign in automatically
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -216,7 +228,19 @@ export default function SignupPage() {
               </Link>
             </div>
           ) : (
-            <>
+            <> 
+              {/* Session warning banner */}
+              {existingSession && (
+                <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-amber-400 shrink-0 mt-0.5">
+                    <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-amber-300 text-sm leading-relaxed">
+                    Você está criando uma <strong>nova conta</strong>. Sua sessão atual será encerrada automaticamente ao cadastrar.
+                  </p>
+                </div>
+              )}
+
               {/* Header */}
               <div className="mb-8">
                 <h2 className="text-white font-[family-name:var(--font-display)] text-4xl font-bold tracking-tight mb-2">
@@ -226,6 +250,7 @@ export default function SignupPage() {
                   Configure sua barbearia em menos de 2 minutos.
                 </p>
               </div>
+
 
               {/* Form card */}
               <form onSubmit={handleSubmit} className="premium-card p-8 space-y-5">

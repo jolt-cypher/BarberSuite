@@ -45,8 +45,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect logged-in users away from auth pages
-  if ((pathname === '/login' || pathname === '/signup') && (user || isDemoMode)) {
+  // Redirect logged-in users away from login page (but NOT signup — allow creating new accounts)
+  if (pathname === '/login' && (user || isDemoMode)) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
