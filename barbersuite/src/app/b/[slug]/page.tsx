@@ -89,13 +89,17 @@ export default async function TenantPublicPage({ params }: { params: Promise<{ s
       {/* HERO */}
       <header className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-4 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image 
-            src={barbershop.cover_url} 
-            alt={barbershop.name} 
-            fill 
-            className="object-cover"
-            priority
-          />
+          {barbershop.cover_url ? (
+            <Image 
+              src={barbershop.cover_url} 
+              alt={barbershop.name} 
+              fill 
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 bg-neutral-950" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-[#050505]/80 to-[#050505]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255, 255, 255,0.15)_0%,transparent_70%)]" />
         </div>
@@ -187,13 +191,19 @@ export default async function TenantPublicPage({ params }: { params: Promise<{ s
             {barbers.map((barber) => (
               <div key={barber.id} className="premium-card overflow-hidden group">
                 <div className="relative h-80 w-full overflow-hidden bg-neutral-900">
-                  <Image 
-                    src={barber.photo_url} 
-                    alt={barber.name} 
-                    fill 
-                    className="object-cover object-top grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                    unoptimized
-                  />
+                  {barber.photo_url ? (
+                    <Image 
+                      src={barber.photo_url} 
+                      alt={barber.name} 
+                      fill 
+                      className="object-cover object-top grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-neutral-950 text-neutral-600 font-[family-name:var(--font-display)] text-lg tracking-widest uppercase">
+                      Sem Foto
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-80" />
                 </div>
                 <div className="p-8 relative -mt-20 z-10">
