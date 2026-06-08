@@ -44,6 +44,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${oswald.variable}`}>
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="BarberSuite" />
+        <link rel="apple-touch-icon" href="/logo.png" />
+      </head>
       <body className="antialiased font-sans" style={{ background: '#030303', color: '#c8cfe0' }}>
         {children}
       </body>
