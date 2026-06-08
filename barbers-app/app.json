@@ -43,11 +43,19 @@
           "merchantIdentifier": "merchant.com.barbersuite",
           "enableGooglePay": false
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5824d2d5-9dae-44c5-aac1-f978001ae81b"
+      }
+    },
+    "owner": "barbersuite"
   }
 }
