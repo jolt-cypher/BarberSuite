@@ -159,16 +159,16 @@ export default function BookingModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="premium-card w-full max-w-2xl relative z-10 flex flex-col h-[680px] max-h-full overflow-hidden bg-[#050505] shadow-2xl">
+      <div className="premium-card w-full max-w-3xl relative z-10 flex flex-col h-[860px] max-h-[95vh] overflow-hidden bg-[#050505] shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-neutral-800 bg-[#0a0a0a]">
+        <div className="flex items-center justify-between p-5 border-b border-neutral-800 bg-[#0a0a0a]">
           <div className="flex items-center gap-2">
             {step > 1 && !success && (
               <button onClick={handlePrev} className="p-1 hover:bg-neutral-800 rounded-md">
                 <ArrowLeft size={18} className="text-neutral-400" />
               </button>
             )}
-            <h2 className="font-[family-name:var(--font-display)] text-xl text-white uppercase tracking-tight">
+            <h2 className="font-[family-name:var(--font-display)] text-2xl text-white uppercase tracking-tight">
               {success ? 'Agendamento Confirmado' : 'Agendar Horário'}
             </h2>
           </div>
@@ -188,17 +188,17 @@ export default function BookingModal({
         )}
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto p-8 scrollbar-hide">
           
           {step === 1 && (
             <div className="animate-fade-in-up">
-              <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest text-center">Escolha o Serviço</h3>
-              <div className="space-y-3">
+              <h3 className="text-base font-bold text-white mb-6 uppercase tracking-widest text-center">Escolha o Serviço</h3>
+              <div className="space-y-4">
                 {services.map(service => (
                   <button 
                     key={service.id}
                     onClick={() => { setSelectedService(service); handleNext() }}
-                    className="w-full p-4 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:border-[#ffffff] hover:bg-[#ffffff]/5 transition-all text-left flex justify-between items-center group"
+                    className="w-full p-5 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:border-[#ffffff] hover:bg-[#ffffff]/5 transition-all text-left flex justify-between items-center group"
                   >
                     <div>
                       <p className="text-white font-medium group-hover:text-[#ffffff] transition-colors">{service.name}</p>
@@ -215,14 +215,14 @@ export default function BookingModal({
 
           {step === 2 && (
             <div className="animate-fade-in-up">
-              <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest text-center">Escolha o Profissional</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <h3 className="text-base font-bold text-white mb-6 uppercase tracking-widest text-center">Escolha o Profissional</h3>
+              <div className="grid grid-cols-2 gap-4">
                 <button 
                   onClick={() => { setSelectedBarber({ id: 'any', name: 'Qualquer Barbeiro' }); handleNext() }}
-                  className="p-4 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:border-[#ffffff] hover:bg-[#ffffff]/5 transition-all flex flex-col items-center gap-3"
+                  className="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:border-[#ffffff] hover:bg-[#ffffff]/5 transition-all flex flex-col items-center gap-4"
                 >
-                  <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center">
-                    <User size={24} className="text-neutral-400" />
+                  <div className="w-20 h-20 rounded-full bg-neutral-800 flex items-center justify-center">
+                    <User size={30} className="text-neutral-400" />
                   </div>
                   <p className="text-sm font-medium text-white text-center">Qualquer Profissional</p>
                 </button>
@@ -231,9 +231,9 @@ export default function BookingModal({
                   <button 
                     key={barber.id}
                     onClick={() => { setSelectedBarber(barber); handleNext() }}
-                    className="p-4 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:border-[#ffffff] hover:bg-[#ffffff]/5 transition-all flex flex-col items-center gap-3"
+                    className="p-6 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:border-[#ffffff] hover:bg-[#ffffff]/5 transition-all flex flex-col items-center gap-4"
                   >
-                    <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-transparent hover:border-[#ffffff] transition-colors flex items-center justify-center bg-neutral-800">
+                    <div className="w-20 h-20 relative rounded-full overflow-hidden border-2 border-transparent hover:border-[#ffffff] transition-colors flex items-center justify-center bg-neutral-800">
                       {barber.photo_url ? (
                         <Image src={barber.photo_url} alt={barber.name} fill className="object-cover" />
                       ) : (
@@ -254,7 +254,7 @@ export default function BookingModal({
 
           {step === 3 && (
             <div className="animate-fade-in-up">
-              <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest text-center">Data e Horário</h3>
+              <h3 className="text-base font-bold text-white mb-6 uppercase tracking-widest text-center">Data e Horário</h3>
               
               <p className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 font-bold">Datas Disponíveis</p>
               <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide snap-x">
@@ -314,7 +314,7 @@ export default function BookingModal({
 
           {step === 4 && (
             <div className="animate-fade-in-up">
-              <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest text-center">Seus Dados</h3>
+              <h3 className="text-base font-bold text-white mb-6 uppercase tracking-widest text-center">Seus Dados</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-[10px] uppercase text-neutral-500 font-bold mb-1">Nome Completo</label>
@@ -360,7 +360,7 @@ export default function BookingModal({
 
           {step === 5 && !success && (
             <div className="animate-fade-in-up flex flex-col h-full">
-              <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-widest text-center">Confirmar Agendamento</h3>
+              <h3 className="text-base font-bold text-white mb-6 uppercase tracking-widest text-center">Confirmar Agendamento</h3>
               
               <div className="flex-1 space-y-4">
                 <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 space-y-3">
