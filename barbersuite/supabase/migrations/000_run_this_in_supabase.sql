@@ -3,6 +3,18 @@
 -- Cole TODO este conteúdo no SQL Editor do Supabase e clique Run
 -- ============================================================
 
+-- 0. Clean up conflicting tables from previous simple setups
+DROP TABLE IF EXISTS public.reviews CASCADE;
+DROP TABLE IF EXISTS public.expenses CASCADE;
+DROP TABLE IF EXISTS public.blocked_slots CASCADE;
+DROP TABLE IF EXISTS public.saas_subscriptions CASCADE;
+DROP TABLE IF EXISTS public.appointments CASCADE;
+DROP TABLE IF EXISTS public.bookings CASCADE;
+DROP TABLE IF EXISTS public.products CASCADE;
+DROP TABLE IF EXISTS public.barbers CASCADE;
+DROP TABLE IF EXISTS public.services CASCADE;
+DROP TABLE IF EXISTS public.barbershops CASCADE;
+
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
