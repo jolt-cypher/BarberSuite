@@ -37,8 +37,6 @@ export default function BookingModal({
   const [availableTimes, setAvailableTimes] = useState<string[]>([])
   const [loadingTimes, setLoadingTimes] = useState(false)
 
-  if (!isOpen) return null
-
   const handleNext = () => setStep(s => s + 1)
   const handlePrev = () => setStep(s => s - 1)
 
@@ -154,6 +152,8 @@ export default function BookingModal({
       setLoadingTimes(false)
     }
   }
+
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
