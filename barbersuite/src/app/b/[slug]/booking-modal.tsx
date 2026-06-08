@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { X, Calendar, Clock, User, Scissors, CheckCircle, ArrowLeft } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
@@ -155,8 +156,8 @@ export default function BookingModal({
 
   if (!isOpen) return null
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       
       <div className="premium-card w-full max-w-3xl relative z-10 flex flex-col h-[860px] max-h-[95vh] overflow-hidden bg-[#050505] shadow-2xl">
@@ -431,6 +432,7 @@ export default function BookingModal({
 
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
