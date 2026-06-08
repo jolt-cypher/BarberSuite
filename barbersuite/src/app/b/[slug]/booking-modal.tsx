@@ -233,8 +233,14 @@ export default function BookingModal({
                     onClick={() => { setSelectedBarber(barber); handleNext() }}
                     className="p-4 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:border-[#ffffff] hover:bg-[#ffffff]/5 transition-all flex flex-col items-center gap-3"
                   >
-                    <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-transparent hover:border-[#ffffff] transition-colors">
-                      <Image src={barber.photo_url || `https://ui-avatars.com/api/?name=${barber.name}&background=1a1a1a&color=d4af37`} alt={barber.name} fill className="object-cover" />
+                    <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-transparent hover:border-[#ffffff] transition-colors flex items-center justify-center bg-neutral-800">
+                      {barber.photo_url ? (
+                        <Image src={barber.photo_url} alt={barber.name} fill className="object-cover" />
+                      ) : (
+                        <span className="text-xl font-bold text-neutral-500 uppercase">
+                          {barber.name.split(' ').map((n: any) => n[0]).slice(0, 2).join('')}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-white text-center line-clamp-1">{barber.name}</p>
