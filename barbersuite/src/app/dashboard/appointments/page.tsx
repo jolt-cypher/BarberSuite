@@ -5,11 +5,12 @@ import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, User,
 import { formatCurrency } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 
-const TIME_SLOTS = Array.from({ length: 27 }, (_, i) => {
-  const hour = Math.floor(i / 2) + 8
-  const minute = i % 2 === 0 ? '00' : '30'
-  return `${hour.toString().padStart(2, '0')}:${minute}`
-})
+const TIME_SLOTS = Array.from({ length: 25 }, (_, i) => {
+  const totalMinutes = 8 * 60 + i * 30
+  const hour = Math.floor(totalMinutes / 60)
+  const minute = totalMinutes % 60
+  return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+}).filter(t => t <= '20:00')
 
 export default function AppointmentsPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -33,6 +34,27 @@ export default function AppointmentsPage() {
       fetchBarbers()
       fetchServices()
       fetchAppointments()
+
+      // Supabase Realtime — atualiza a agenda automaticamente quando chega novo agendamento
+      const channel = supabase
+        .channel(`appointments-realtime-${barbershopId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'appointments',
+            filter: `barbershop_id=eq.${barbershopId}`,
+          },
+          () => {
+            fetchAppointments()
+          }
+        )
+        .subscribe()
+
+      return () => {
+        supabase.removeChannel(channel)
+      }
     }
   }, [barbershopId, currentDate])
 
@@ -169,6 +191,10 @@ export default function AppointmentsPage() {
           <h1 className="font-[family-name:var(--font-display)] text-2xl uppercase tracking-tight text-white">
             Agenda
           </h1>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/30">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-green-400">Ao Vivo</span>
+          </div>
           <div className="flex items-center gap-2 bg-neutral-900 rounded-lg p-1">
             <button onClick={handlePrevDay} className="p-1.5 hover:bg-neutral-800 rounded-md transition-colors text-white">
               <ChevronLeft size={16} />
