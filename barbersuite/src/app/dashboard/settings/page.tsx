@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Save, UploadCloud, Link as LinkIcon, Bell, Calendar, Store, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Save, UploadCloud, Link as LinkIcon, Bell, Calendar, Store, Loader2, Upload, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SettingsPage() {
@@ -31,6 +31,12 @@ export default function SettingsPage() {
     sat: ['08:00', '18:00'],
     sun: null
   })
+
+  // File upload refs & states
+  const logoInputRef = useRef<HTMLInputElement>(null)
+  const coverInputRef = useRef<HTMLInputElement>(null)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [uploadingCover, setUploadingCover] = useState(false)
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -103,6 +109,106 @@ export default function SettingsPage() {
       alert('Erro ao salvar configurações: ' + err.message)
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('A imagem do logo deve ter no máximo 2MB.')
+      return
+    }
+
+    setUploadingLogo(true)
+
+    // Instant Base64 preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setLogoUrl(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    if (!barbershop?.id) {
+      setUploadingLogo(false)
+      return
+    }
+
+    const supabase = createClient()
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${barbershop.id}/logo_${Date.now()}.${fileExt}`
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('barber-photos')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true })
+
+      if (uploadError) {
+        console.warn('Supabase storage upload failed, using Base64 instead:', uploadError)
+      } else {
+        const { data } = supabase.storage
+          .from('barber-photos')
+          .getPublicUrl(fileName)
+
+        if (data?.publicUrl) {
+          setLogoUrl(data.publicUrl)
+        }
+      }
+    } catch (err: any) {
+      console.warn('Logo upload warning:', err)
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('A imagem de capa deve ter no máximo 2MB.')
+      return
+    }
+
+    setUploadingCover(true)
+
+    // Instant Base64 preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setCoverUrl(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    if (!barbershop?.id) {
+      setUploadingCover(false)
+      return
+    }
+
+    const supabase = createClient()
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${barbershop.id}/cover_${Date.now()}.${fileExt}`
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('barber-photos')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true })
+
+      if (uploadError) {
+        console.warn('Supabase storage upload failed, using Base64 instead:', uploadError)
+      } else {
+        const { data } = supabase.storage
+          .from('barber-photos')
+          .getPublicUrl(fileName)
+
+        if (data?.publicUrl) {
+          setCoverUrl(data.publicUrl)
+        }
+      }
+    } catch (err: any) {
+      console.warn('Cover upload warning:', err)
+    } finally {
+      setUploadingCover(false)
     }
   }
 
@@ -304,51 +410,119 @@ export default function SettingsPage() {
               <h2 className="font-[family-name:var(--font-display)] text-xl text-white uppercase mb-6 border-b border-neutral-800 pb-4">Personalização</h2>
               
               <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                <div className="w-24 h-24 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {logoUrl ? (
-                    <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                <div 
+                  onClick={() => logoInputRef.current?.click()}
+                  className="w-24 h-24 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center overflow-hidden flex-shrink-0 cursor-pointer hover:border-[#ffffff] transition-colors relative group"
+                >
+                  {uploadingLogo ? (
+                    <Loader2 size={24} className="animate-spin text-white" />
+                  ) : logoUrl ? (
+                    <>
+                      <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Upload size={18} className="text-white" />
+                      </div>
+                    </>
                   ) : (
-                    <span className="text-[#ffffff] text-2xl font-bold">{name ? name.charAt(0).toUpperCase() : 'B'}</span>
+                    <div className="flex flex-col items-center">
+                      <span className="text-[#ffffff] text-2xl font-bold">{name ? name.charAt(0).toUpperCase() : 'B'}</span>
+                      <span className="text-[8px] uppercase tracking-wider text-neutral-500 mt-0.5">Upload</span>
+                    </div>
                   )}
                 </div>
                 <div className="flex-grow w-full">
                   <label className="block text-[10px] uppercase text-neutral-500 font-bold mb-1">URL do Logo</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      className="premium-input w-full text-xs" 
+                      placeholder="https://exemplo.com/logo.png" 
+                      value={logoUrl} 
+                      onChange={e => setLogoUrl(e.target.value)} 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => logoInputRef.current?.click()}
+                      className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                    >
+                      <UploadCloud size={14} />
+                      <span>Upload</span>
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-neutral-500 mt-1">Insira uma URL direta ou clique no avatar para fazer upload.</p>
                   <input 
-                    type="text" 
-                    className="premium-input w-full text-xs" 
-                    placeholder="https://exemplo.com/logo.png" 
-                    value={logoUrl} 
-                    onChange={e => setLogoUrl(e.target.value)} 
+                    type="file" 
+                    ref={logoInputRef} 
+                    onChange={handleLogoFileChange} 
+                    className="hidden" 
+                    accept="image/*" 
                   />
-                  <p className="text-[10px] text-neutral-500 mt-1">Insira uma URL direta para a imagem do logo.</p>
                 </div>
               </div>
 
               <div>
                 <label className="block text-[10px] uppercase text-neutral-500 font-bold mb-2">Imagem de Capa (Hero)</label>
-                {coverUrl ? (
+                {uploadingCover ? (
+                  <div className="w-full h-32 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center flex-col mb-2">
+                    <Loader2 size={24} className="animate-spin text-white mb-2" />
+                    <span className="text-xs text-neutral-400">Enviando imagem...</span>
+                  </div>
+                ) : coverUrl ? (
                   <div className="w-full h-32 rounded-xl bg-neutral-900 border border-neutral-800 overflow-hidden relative group mb-2">
                     <img src={coverUrl} alt="Capa" className="w-full h-full object-cover" />
-                    <button 
-                      type="button" 
-                      onClick={() => setCoverUrl('')}
-                      className="absolute top-2 right-2 bg-red-600/85 text-white p-1 rounded hover:bg-red-600 text-xs transition-colors"
-                    >
-                      Remover
-                    </button>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity gap-2">
+                      <button 
+                        type="button" 
+                        onClick={() => coverInputRef.current?.click()}
+                        className="bg-neutral-950/80 text-white px-3 py-1.5 rounded-lg hover:bg-white hover:text-black text-xs font-semibold flex items-center gap-1.5 transition-all"
+                      >
+                        <Upload size={14} />
+                        Alterar Capa
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => setCoverUrl('')}
+                        className="bg-red-600/80 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                      >
+                        <Trash2 size={14} />
+                        Remover
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="w-full h-32 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center flex-col mb-2">
-                    <UploadCloud size={24} className="text-neutral-500 mb-2" />
-                    <span className="text-xs text-neutral-400">Nenhuma imagem de capa configurada</span>
+                  <div 
+                    onClick={() => coverInputRef.current?.click()}
+                    className="w-full h-32 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#ffffff] flex items-center justify-center flex-col cursor-pointer transition-colors group mb-2"
+                  >
+                    <UploadCloud size={24} className="text-neutral-500 group-hover:text-white transition-colors mb-2" />
+                    <span className="text-xs text-neutral-400 group-hover:text-white transition-colors font-medium">Clique para enviar uma imagem de capa</span>
+                    <span className="text-[10px] text-neutral-600 mt-1">Formatos suportados: PNG, JPG (máx. 2MB)</span>
                   </div>
                 )}
+                
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    className="premium-input w-full text-xs" 
+                    placeholder="https://exemplo.com/capa.jpg" 
+                    value={coverUrl} 
+                    onChange={e => setCoverUrl(e.target.value)} 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => coverInputRef.current?.click()}
+                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                  >
+                    <UploadCloud size={14} />
+                    <span>Upload</span>
+                  </button>
+                </div>
                 <input 
-                  type="text" 
-                  className="premium-input w-full text-xs" 
-                  placeholder="https://exemplo.com/capa.jpg" 
-                  value={coverUrl} 
-                  onChange={e => setCoverUrl(e.target.value)} 
+                  type="file" 
+                  ref={coverInputRef} 
+                  onChange={handleCoverFileChange} 
+                  className="hidden" 
+                  accept="image/*" 
                 />
               </div>
 
