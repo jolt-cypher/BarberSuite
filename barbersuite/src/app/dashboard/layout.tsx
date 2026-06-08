@@ -221,20 +221,7 @@ export default async function DashboardLayout({
 
       {/* MAIN */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Trial banner */}
-        {barbershop?.plan === 'trial' && (
-          <div className="bg-[#ffffff]/10 border-b border-[#ffffff]/20 px-6 py-2 flex items-center justify-between flex-shrink-0">
-            <p className="text-xs text-[#ffffff] font-medium">
-              ✨ Trial gratuito ativo — Escolha um plano para continuar após o período de avaliação
-            </p>
-            <Link
-              href="/dashboard/billing"
-              className="text-xs text-[#ffffff] font-bold underline hover:no-underline"
-            >
-              Ver planos →
-            </Link>
-          </div>
-        )}
+
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
