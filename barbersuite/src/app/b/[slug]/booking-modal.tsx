@@ -159,7 +159,7 @@ export default function BookingModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="premium-card w-full max-w-lg relative z-10 flex flex-col h-[600px] max-h-full overflow-hidden bg-[#050505] shadow-2xl">
+      <div className="premium-card w-full max-w-2xl relative z-10 flex flex-col h-[680px] max-h-full overflow-hidden bg-[#050505] shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-neutral-800 bg-[#0a0a0a]">
           <div className="flex items-center gap-2">
