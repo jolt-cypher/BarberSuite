@@ -61,7 +61,7 @@ export default async function TenantPublicPage({ params }: { params: Promise<{ s
   const reviews = reviewsData || []
 
   return (
-    <div className="min-h-screen bg-[#050505] selection:bg-[#ffffff] selection:text-black">
+    <div className="min-h-screen bg-[#050505] selection:bg-[#ffffff] selection:text-black bg-[url('/booking_bg.png')] bg-cover bg-no-repeat bg-center bg-fixed">
       {/* NAVBAR */}
       <nav className="fixed top-0 left-0 right-0 z-40 glass-dark border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
@@ -97,11 +97,9 @@ export default async function TenantPublicPage({ params }: { params: Promise<{ s
               className="object-cover"
               priority
             />
-          ) : (
-            <div className="absolute inset-0 bg-neutral-950" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-[#050505]/80 to-[#050505]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255, 255, 255,0.15)_0%,transparent_70%)]" />
+          ) : null}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-[#050505]/60 to-[#050505]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)]" />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center animate-fade-in-up">
