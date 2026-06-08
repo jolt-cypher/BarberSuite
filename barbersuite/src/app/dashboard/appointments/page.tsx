@@ -40,13 +40,27 @@ export default function AppointmentsPage() {
     const { data: userData } = await supabase.auth.getUser()
     if (!userData.user) return
 
+    // 1. Tenta carregar como proprietário
     const { data: shop } = await supabase
       .from('barbershops')
       .select('id')
       .eq('owner_id', userData.user.id)
-      .single()
+      .maybeSingle()
     
-    if (shop) setBarbershopId(shop.id)
+    if (shop) {
+      setBarbershopId(shop.id)
+    } else {
+      // 2. Tenta carregar como barbeiro (funcionário) associado
+      const { data: barber } = await supabase
+        .from('barbers')
+        .select('barbershop_id')
+        .or(`user_id.eq.${userData.user.id},working_hours->>email.eq.${userData.user.email}`)
+        .maybeSingle()
+
+      if (barber) {
+        setBarbershopId(barber.barbershop_id)
+      }
+    }
   }
 
   const fetchBarbers = async () => {

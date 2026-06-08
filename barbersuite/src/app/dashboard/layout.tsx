@@ -69,6 +69,8 @@ export default async function DashboardLayout({
 
   let user = null
   let barbershop: Barbershop | null = null
+  let isBarber = false
+  let matchedBarber = null
 
   if (isDemoMode) {
     user = {
@@ -99,9 +101,45 @@ export default async function DashboardLayout({
       .from('barbershops')
       .select('*')
       .eq('owner_id', user.id)
-      .single<Barbershop>()
-    barbershop = realBarbershop
+      .maybeSingle<Barbershop>()
+    
+    if (realBarbershop) {
+      barbershop = realBarbershop
+    } else {
+      // Tenta buscar na tabela de barbeiros (funcionários) por user_id ou email
+      const { data: barberProfile } = await supabase
+        .from('barbers')
+        .select('*, barbershops(*)')
+        .or(`user_id.eq.${user.id},working_hours->>email.eq.${user.email}`)
+        .maybeSingle()
+
+      if (barberProfile) {
+        isBarber = true
+        matchedBarber = barberProfile
+        barbershop = barberProfile.barbershops as any
+
+        // Auto-vincula o ID de autenticação se estiver vazio
+        if (!barberProfile.user_id) {
+          await supabase
+            .from('barbers')
+            .update({ user_id: user.id })
+            .eq('id', barberProfile.id)
+        }
+      }
+    }
   }
+
+  // Filtrar itens do menu se o usuário for um barbeiro
+  const visibleNavGroups = isBarber ? [
+    {
+      label: 'Minha Agenda',
+      items: [
+        { href: '/dashboard',             icon: CalendarDays,    label: 'Meus Atendimentos', id: 'atendimentos' },
+        { href: '/dashboard/appointments', icon: CalendarDays,    label: 'Agenda Geral',      id: 'agenda' },
+        { href: '/dashboard/team',        icon: Users,           label: 'Meu Perfil',        id: 'equipe' },
+      ],
+    }
+  ] : navGroups
 
   return (
     <div className="h-screen overflow-hidden flex bg-[#050505]">
@@ -119,7 +157,7 @@ export default async function DashboardLayout({
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-3 flex flex-col gap-0.5">
-          {navGroups.map((group) => (
+          {visibleNavGroups.map((group) => (
             <div key={group.label} className="mb-1">
               <div className="hidden md:block px-5 pt-4 pb-1.5">
                 <p className="text-[9px] text-neutral-700 uppercase tracking-widest font-bold">{group.label}</p>

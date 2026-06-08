@@ -51,6 +51,7 @@ export default function TeamPage() {
   const [bio, setBio] = useState('')
   const [instagram, setInstagram] = useState('')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [color, setColor] = useState('#ffffff')
   const [photoUrl, setPhotoUrl] = useState('')
   const [commissionPercent, setCommissionPercent] = useState(50)
@@ -63,6 +64,10 @@ export default function TeamPage() {
     sat: true,
     sun: false
   })
+
+  // User role states
+  const [isBarberUser, setIsBarberUser] = useState(false)
+  const [barberUserId, setBarberUserId] = useState<string | null>(null)
 
   // File upload state
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -92,16 +97,34 @@ export default function TeamPage() {
 
     let shopId = null
     let demoActive = false
+    let isBarber = false
+    let bId = null
 
     if (userData?.user) {
+      // 1. Tenta carregar como proprietário
       const { data: shop } = await supabase
         .from('barbershops')
         .select('id')
         .eq('owner_id', userData.user.id)
-        .single()
+        .maybeSingle()
 
       if (shop) {
         shopId = shop.id
+      } else {
+        // 2. Tenta carregar como barbeiro (funcionário) associado
+        const { data: barber } = await supabase
+          .from('barbers')
+          .select('barbershop_id, id')
+          .or(`user_id.eq.${userData.user.id},working_hours->>email.eq.${userData.user.email}`)
+          .maybeSingle()
+
+        if (barber) {
+          shopId = barber.barbershop_id
+          isBarber = true
+          bId = barber.id
+          setIsBarberUser(true)
+          setBarberUserId(barber.id)
+        }
       }
     } else {
       const isDemo = document.cookie.includes('demo-mode=true')
@@ -121,22 +144,32 @@ export default function TeamPage() {
 
     if (shopId) {
       setBarbershopId(shopId)
+      // Chamar fetchData diretamente com as informações locais para evitar atraso de estado assíncrono
+      await fetchData(shopId, isBarber, bId)
     } else {
       setLoading(false)
     }
   }
 
-  const fetchData = async (shopId: string) => {
+  const fetchData = async (shopId: string, customIsBarber?: boolean, customBarberId?: string | null) => {
     setLoading(true)
     const supabase = createClient()
 
+    const checkIsBarber = customIsBarber !== undefined ? customIsBarber : isBarberUser
+    const checkBarberId = customBarberId !== undefined ? customBarberId : barberUserId
+
     try {
       // 1. Fetch Barbers
-      const { data: barbersData, error: barbersError } = await supabase
+      let barbersQuery = supabase
         .from('barbers')
         .select('*')
         .eq('barbershop_id', shopId)
-        .order('created_at', { ascending: true })
+
+      if (checkIsBarber && checkBarberId) {
+        barbersQuery = barbersQuery.eq('id', checkBarberId)
+      }
+
+      const { data: barbersData, error: barbersError } = await barbersQuery.order('created_at', { ascending: true })
 
       if (barbersError) throw barbersError
       
@@ -146,11 +179,16 @@ export default function TeamPage() {
       }
 
       // 2. Fetch Appointments
-      const { data: apptsData, error: apptsError } = await supabase
+      let apptsQuery = supabase
         .from('appointments')
         .select('*')
         .eq('barbershop_id', shopId)
-        .order('scheduled_at', { ascending: false })
+
+      if (checkIsBarber && checkBarberId) {
+        apptsQuery = apptsQuery.eq('barber_id', checkBarberId)
+      }
+
+      const { data: apptsData, error: apptsError } = await apptsQuery.order('scheduled_at', { ascending: false })
 
       if (apptsError) throw apptsError
 
@@ -330,6 +368,7 @@ export default function TeamPage() {
     setBio('')
     setInstagram('')
     setPhone('')
+    setEmail('')
     setColor('#ffffff')
     setPhotoUrl('')
     setCommissionPercent(50)
@@ -353,6 +392,7 @@ export default function TeamPage() {
     setBio(barber.bio || '')
     setInstagram(barber.instagram_url || '')
     setPhone(barber.working_hours?.phone || '')
+    setEmail(barber.working_hours?.email || '')
     setColor(barber.color || '#ffffff')
     setPhotoUrl(barber.photo_url || '')
     setCommissionPercent(barber.working_hours?.commission_percent ?? 50)
@@ -436,6 +476,7 @@ export default function TeamPage() {
         sat: workingDays.sat ? ["08:00", "18:00"] : null,
         sun: workingDays.sun ? ["08:00", "18:00"] : null,
         phone: phone.trim() || null,
+        email: email.trim() || null,
         commission_percent: Number(commissionPercent)
       }
     }
@@ -550,13 +591,17 @@ export default function TeamPage() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h1 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl uppercase tracking-tight text-white">
-            Equipe & Funcionários
+            {isBarberUser ? 'Meu Perfil Profissional' : 'Equipe & Funcionários'}
           </h1>
-          <p className="text-neutral-500 text-sm mt-1">Gerencie seu time de barbeiros, comissões individuais e horários de trabalho.</p>
+          <p className="text-neutral-500 text-sm mt-1">
+            {isBarberUser ? 'Visualização e edição de suas informações e horários de trabalho.' : 'Gerencie seu time de barbeiros, comissões individuais e horários de trabalho.'}
+          </p>
         </div>
-        <button onClick={handleCreateClick} className="btn-neon py-2.5 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-          <Plus size={16} /> Adicionar Barbeiro
-        </button>
+        {!isBarberUser && (
+          <button onClick={handleCreateClick} className="btn-neon py-2.5 px-4 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <Plus size={16} /> Adicionar Barbeiro
+          </button>
+        )}
       </div>
 
       {/* ── Loader Overlay ── */}
@@ -575,9 +620,11 @@ export default function TeamPage() {
                 <h3 className="text-lg font-bold text-white uppercase tracking-wider">Nenhum barbeiro cadastrado</h3>
                 <p className="text-sm text-neutral-500 mt-1">Adicione seu primeiro profissional para começar a gerenciar sua equipe.</p>
               </div>
-              <button onClick={handleCreateClick} className="btn-outline py-2 text-xs uppercase tracking-wider mt-2">
-                Cadastrar Barbeiro
-              </button>
+              {!isBarberUser && (
+                <button onClick={handleCreateClick} className="btn-outline py-2 text-xs uppercase tracking-wider mt-2">
+                  Cadastrar Barbeiro
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -588,27 +635,39 @@ export default function TeamPage() {
                   
                   {/* Action buttons */}
                   <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                      onClick={() => handleToggleActive(member)}
-                      className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded-md transition-colors bg-[#0a0a0a]"
-                      title={member.is_active ? 'Desativar Barbeiro' : 'Ativar Barbeiro'}
-                    >
-                      <CheckCircle size={14} className={member.is_active ? 'text-green-500' : 'text-neutral-500'} />
-                    </button>
-                    <button 
-                      onClick={() => handleEditClick(member)}
-                      className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded-md transition-colors bg-[#0a0a0a]"
-                      title="Editar"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(member.id)}
-                      className="p-1.5 text-neutral-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-colors bg-[#0a0a0a]"
-                      title="Excluir"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    {isBarberUser ? (
+                      <button 
+                        onClick={() => handleEditClick(member)}
+                        className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded-md transition-colors bg-[#0a0a0a]"
+                        title="Editar Perfil"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                    ) : (
+                      <>
+                        <button 
+                          onClick={() => handleToggleActive(member)}
+                          className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded-md transition-colors bg-[#0a0a0a]"
+                          title={member.is_active ? 'Desativar Barbeiro' : 'Ativar Barbeiro'}
+                        >
+                          <CheckCircle size={14} className={member.is_active ? 'text-green-500' : 'text-neutral-500'} />
+                        </button>
+                        <button 
+                          onClick={() => handleEditClick(member)}
+                          className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded-md transition-colors bg-[#0a0a0a]"
+                          title="Editar"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(member.id)}
+                          className="p-1.5 text-neutral-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-colors bg-[#0a0a0a]"
+                          title="Excluir"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex flex-col items-center text-center">
@@ -982,7 +1041,7 @@ export default function TeamPage() {
               </div>
 
               {/* Grid 1: Basic Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-[10px] uppercase text-neutral-500 font-bold mb-1">Nome Completo</label>
                   <input 
@@ -992,6 +1051,7 @@ export default function TeamPage() {
                     className="premium-input w-full" 
                     placeholder="Ex: José Shaper" 
                     required
+                    disabled={isBarberUser}
                   />
                 </div>
                 <div>
@@ -1002,6 +1062,18 @@ export default function TeamPage() {
                     onChange={(e) => setRole(e.target.value)}
                     className="premium-input w-full" 
                     placeholder="Ex: Mestre Barbeiro" 
+                    disabled={isBarberUser}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase text-neutral-500 font-bold mb-1">Email para Acesso</label>
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="premium-input w-full text-xs font-mono" 
+                    placeholder="barbeiro@email.com" 
+                    disabled={isBarberUser || editingBarber !== null}
                   />
                 </div>
               </div>
@@ -1050,6 +1122,7 @@ export default function TeamPage() {
                     max={100}
                     placeholder="50" 
                     required
+                    disabled={isBarberUser}
                   />
                 </div>
               </div>

@@ -86,16 +86,38 @@ export default async function DashboardPage() {
     }
     user = supabaseUser
 
-    const { data: realBarbershop } = await supabase
+    let realBarbershop = null
+    let isBarber = false
+    let matchedBarberId = null
+
+    // 1. Tenta carregar como proprietário
+    const { data: shopAsOwner } = await supabase
       .from('barbershops')
       .select('*')
       .eq('owner_id', user.id)
       .maybeSingle()
 
+    if (shopAsOwner) {
+      realBarbershop = shopAsOwner
+    } else {
+      // 2. Tenta carregar como barbeiro (funcionário) associado
+      const { data: barberProfile } = await supabase
+        .from('barbers')
+        .select('*, barbershops(*)')
+        .or(`user_id.eq.${user.id},working_hours->>email.eq.${user.email}`)
+        .maybeSingle()
+
+      if (barberProfile) {
+        realBarbershop = barberProfile.barbershops
+        isBarber = true
+        matchedBarberId = barberProfile.id
+      }
+    }
+
     if (!realBarbershop) {
       redirect('/add-barbershop')
     }
-    barbershop = realBarbershop
+    barbershop = realBarbershop as any
 
     // 1. Obter datas limites de Hoje
     const startOfDay = new Date()
@@ -104,13 +126,18 @@ export default async function DashboardPage() {
     endOfDay.setHours(23, 59, 59, 999)
 
     // 2. Buscar agendamentos de Hoje (com relacionamento de barbeiros e serviços)
-    const { data: todayAptsRaw } = await supabase
+    let todayQuery = supabase
       .from('appointments')
       .select('*, barbers(name), services(name)')
       .eq('barbershop_id', barbershop!.id)
       .gte('scheduled_at', startOfDay.toISOString())
       .lte('scheduled_at', endOfDay.toISOString())
-      .order('scheduled_at', { ascending: true })
+
+    if (isBarber) {
+      todayQuery = todayQuery.eq('barber_id', matchedBarberId!)
+    }
+
+    const { data: todayAptsRaw } = await todayQuery.order('scheduled_at', { ascending: true })
 
     todayApts = (todayAptsRaw || []).map(apt => ({
       id: apt.id,
@@ -129,22 +156,34 @@ export default async function DashboardPage() {
     startOfWeek.setDate(diff)
     startOfWeek.setHours(0, 0, 0, 0)
 
-    const { data: weekAptsRaw } = await supabase
+    let weekQuery = supabase
       .from('appointments')
       .select('price, status, payment_status')
       .eq('barbershop_id', barbershop!.id)
       .gte('scheduled_at', startOfWeek.toISOString())
+
+    if (isBarber) {
+      weekQuery = weekQuery.eq('barber_id', matchedBarberId!)
+    }
+
+    const { data: weekAptsRaw } = await weekQuery
 
     // 4. Buscar agendamentos deste Mês para os KPIs
     const startOfMonth = new Date()
     startOfMonth.setDate(1)
     startOfMonth.setHours(0, 0, 0, 0)
 
-    const { data: monthAptsRaw } = await supabase
+    let monthQuery = supabase
       .from('appointments')
       .select('price, status, payment_status')
       .eq('barbershop_id', barbershop!.id)
       .gte('scheduled_at', startOfMonth.toISOString())
+
+    if (isBarber) {
+      monthQuery = monthQuery.eq('barber_id', matchedBarberId!)
+    }
+
+    const { data: monthAptsRaw } = await monthQuery
 
     // Cálculos de KPIs reais
     revenueToday = (todayAptsRaw || [])
@@ -169,11 +208,17 @@ export default async function DashboardPage() {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
     sevenDaysAgo.setHours(0, 0, 0, 0)
 
-    const { data: sevenDaysAptsRaw } = await supabase
+    let sevenDaysQuery = supabase
       .from('appointments')
       .select('price, scheduled_at, status, payment_status')
       .eq('barbershop_id', barbershop!.id)
       .gte('scheduled_at', sevenDaysAgo.toISOString())
+
+    if (isBarber) {
+      sevenDaysQuery = sevenDaysQuery.eq('barber_id', matchedBarberId!)
+    }
+
+    const { data: sevenDaysAptsRaw } = await sevenDaysQuery
 
     const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
     const chartMap = new Map<string, number>()
