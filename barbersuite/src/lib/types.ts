@@ -60,6 +60,18 @@ export interface Barber {
   created_at: string
 }
 
+export interface Client {
+  id: string
+  barbershop_id: string
+  name: string
+  phone: string | null
+  email: string | null
+  notes: string | null
+  total_spent: number
+  last_visit: string | null
+  created_at: string
+}
+
 export interface Service {
   id: string
   barbershop_id: string
@@ -78,6 +90,7 @@ export interface Appointment {
   barbershop_id: string
   barber_id: string | null
   service_id: string | null
+  client_id: string | null
   client_name: string
   client_phone: string
   client_email: string | null
@@ -87,6 +100,7 @@ export interface Appointment {
   status: AppointmentStatus
   canceled_reason: string | null
   price: number | null
+  tip_amount: number | null
   payment_method: PaymentMethod | null
   payment_status: PaymentStatus
   notes: string | null
@@ -96,6 +110,7 @@ export interface Appointment {
   // Relations
   barber?: Barber
   service?: Service
+  client?: Client
 }
 
 export interface Product {

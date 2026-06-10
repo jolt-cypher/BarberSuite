@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, User, Scissors } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { AppointmentDetailModal } from './_components/AppointmentDetailModal'
 
 const TIME_SLOTS = Array.from({ length: 25 }, (_, i) => {
   const totalMinutes = 8 * 60 + i * 30
@@ -24,6 +25,10 @@ export default function AppointmentsPage() {
   
   // Modal State
   const [newAppt, setNewAppt] = useState({ client_name: '', client_phone: '', barber_id: '', service_id: '', time: '09:00' })
+  
+  // Detail Modal State
+  const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   useEffect(() => {
     fetchBarbershop()
@@ -280,6 +285,11 @@ export default function AppointmentsPage() {
                         height: `${height}rem`,
                         minHeight: '4rem',
                       }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedAppointment(apt)
+                        setIsDetailModalOpen(true)
+                      }}
                     >
                       <p className="text-xs font-bold text-white truncate">
                         {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')} - {apt.client_name}
@@ -365,6 +375,17 @@ export default function AppointmentsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Appointment Detail & Client CRM Modal */}
+      {barbershopId && (
+        <AppointmentDetailModal
+          appointment={selectedAppointment}
+          barbershopId={barbershopId}
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          onRefresh={fetchAppointments}
+        />
       )}
     </div>
   )
