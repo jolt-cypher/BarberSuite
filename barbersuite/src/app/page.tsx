@@ -184,7 +184,6 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8">
             {[
               { href: '#features', label: 'Funcionalidades' },
-              { href: '#pricing',  label: 'Preços' },
               { href: '#testimonials', label: 'Para Barbearias' },
             ].map(({ href, label }) => (
               <a
@@ -202,7 +201,7 @@ export default function LandingPage() {
               Entrar
             </Link>
             <Link href="/signup" className="btn-primary text-xs py-2 px-5">
-              Começar Grátis
+              Criar Conta
             </Link>
           </div>
         </div>
@@ -237,7 +236,7 @@ export default function LandingPage() {
 
           <div className="animate-fade-in-up opacity-0 delay-400 flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full">
             <Link href="/signup" className="btn-primary text-sm py-4 px-8 w-full sm:w-auto justify-center">
-              Criar Conta Grátis →
+              Criar Conta →
             </Link>
             <a href="#features" className="btn-outline text-sm py-4 px-8 w-full sm:w-auto justify-center">
               Ver Demo
@@ -370,137 +369,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 4. PRICING ── */}
-      <section id="pricing" className="relative py-28 px-6 z-10 particle-section">
 
-        {/* faint radial glow at top */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(80,120,255,0.05) 0%, transparent 65%)' }}
-        />
-
-        <div className="relative max-w-6xl mx-auto z-10">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <span className="inline-block mb-4 text-xs font-bold tracking-[0.3em] uppercase text-[#ffffff]">
-              Preços
-            </span>
-            <h2 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl font-bold text-white">
-              Planos Para{' '}
-              <span className="text-gradient">Toda Barbearia</span>
-            </h2>
-            <p className="mt-4" style={{ color: 'rgba(200,207,224,0.5)' }}>
-              Comece grátis por 14 dias. Escolha o plano quando estiver pronto.
-            </p>
-          </div>
-
-          {/* Plans Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`relative flex flex-col gap-7 p-8 rounded-2xl transition-all duration-300 ${
-                  plan.highlighted ? 'md:-mt-6 md:mb-6' : ''
-                }`}
-                style={{
-                  background: plan.highlighted
-                    ? 'rgba(12, 17, 32, 0.97)'
-                    : 'rgba(9, 13, 24, 0.88)',
-                  border: plan.highlighted
-                    ? '1px solid rgba(255, 255, 255, 0.35)'
-                    : '1px solid rgba(130, 160, 230, 0.1)',
-                  boxShadow: plan.highlighted
-                    ? '0 0 70px rgba(255, 255, 255,0.12), 0 30px 60px rgba(0,0,0,0.9)'
-                    : '0 8px 32px rgba(0,0,0,0.6)',
-                  backdropFilter: 'blur(28px)',
-                }}
-              >
-                {/* Popular badge */}
-                {plan.badge && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
-                    {/* tiny icon above badge, like in the reference image */}
-                    <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center mb-1"
-                      style={{ background: 'rgba(255, 255, 255,0.15)', border: '1px solid rgba(255, 255, 255,0.3)' }}
-                    >
-                      <span className="text-[#ffffff] text-sm">✦</span>
-                    </div>
-                    <span
-                      className="inline-block px-4 py-1 text-[10px] font-black tracking-[0.18em] uppercase rounded-full"
-                      style={{ background: 'linear-gradient(135deg, #ffffff, #d1d5db)', color: '#000' }}
-                    >
-                      {plan.badge}
-                    </span>
-                  </div>
-                )}
-
-                {/* Plan name tag */}
-                <div className={plan.highlighted ? 'mt-6' : ''}>
-                  <div className="flex items-center justify-between mb-4">
-                    <span
-                      className="text-[10px] font-black tracking-[0.22em] uppercase px-3 py-1 rounded-full"
-                      style={{
-                        background: plan.highlighted ? 'rgba(255, 255, 255,0.12)' : 'rgba(255,255,255,0.06)',
-                        border: plan.highlighted ? '1px solid rgba(255, 255, 255,0.25)' : '1px solid rgba(255,255,255,0.12)',
-                        color: plan.highlighted ? '#ffffff' : 'rgba(255,255,255,0.6)',
-                      }}
-                    >
-                      {plan.name}
-                    </span>
-                    {/* small square icon like in reference */}
-                    <div
-                      className="w-6 h-6 rounded flex items-center justify-center"
-                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
-                    >
-                      <div className="w-2 h-2 rounded-sm" style={{ background: plan.highlighted ? '#ffffff' : 'rgba(255,255,255,0.4)' }} />
-                    </div>
-                  </div>
-
-                  {/* Price */}
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span className="font-[family-name:var(--font-display)] text-6xl font-extrabold text-white leading-none">
-                      {plan.price}
-                    </span>
-                    <span className="text-sm pb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{plan.period}</span>
-                  </div>
-                  <p className="text-sm" style={{ color: 'rgba(200,207,224,0.5)' }}>{plan.description}</p>
-                </div>
-
-                {/* Divider */}
-                <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
-
-                {/* Features list */}
-                <ul className="flex flex-col gap-3">
-                  {plan.features.map((feat) => (
-                    <li key={feat} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(200,207,224,0.75)' }}>
-                      <CheckIcon />
-                      {feat}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA */}
-                <div className="mt-auto pt-2">
-                  <Link
-                    href={plan.id === 'enterprise' ? '/contact' : '/signup'}
-                    className={`w-full justify-center flex text-xs py-3 px-6 font-bold uppercase tracking-[0.12em] rounded transition-all duration-300 ${
-                      plan.highlighted ? 'btn-primary' : 'pricing-cta-outline'
-                    }`}
-                  >
-                    ▪ {plan.cta.toUpperCase()}
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Footer note */}
-          <p className="text-center mt-10 text-xs tracking-wide" style={{ color: 'rgba(255,255,255,0.3)' }}>
-            14 dias grátis em todos os planos &bull; Cancele a qualquer momento &bull; Sem taxa de configuração
-          </p>
-        </div>
-      </section>
 
       {/* ── 5. TESTIMONIALS ── */}
       <section id="testimonials" className="py-28 px-6 relative z-10">
@@ -573,11 +442,11 @@ export default function LandingPage() {
           </h2>
 
           <p className="text-lg max-w-lg" style={{ color: 'rgba(200,207,224,0.5)' }}>
-            14 dias grátis. Sem cartão de crédito. Configure em 5 minutos.
+            Configure sua barbearia em 5 minutos e comece a gerenciar hoje mesmo.
           </p>
 
           <Link href="/signup" className="btn-primary text-sm py-5 px-12">
-            Criar Minha Conta Grátis →
+            Criar Minha Conta →
           </Link>
         </div>
       </section>
@@ -614,7 +483,7 @@ export default function LandingPage() {
           <div>
             <h4 className="text-white font-semibold text-xs mb-4 tracking-[0.2em] uppercase">Produto</h4>
             <ul className="flex flex-col gap-3">
-              {['Funcionalidades', 'Preços', 'Sobre', 'Blog'].map((link) => (
+              {['Funcionalidades', 'Sobre', 'Blog'].map((link) => (
                 <li key={link}>
                   <a href="#" className="text-sm transition-colors hover:text-white" style={{ color: 'rgba(255,255,255,0.35)' }}>{link}</a>
                 </li>

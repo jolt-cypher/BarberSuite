@@ -1049,7 +1049,7 @@ export default function TeamPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="premium-input w-full" 
-                    placeholder="Ex: José Shaper" 
+                    placeholder="Ex: Hygor Miguel" 
                     required
                     disabled={isBarberUser}
                   />

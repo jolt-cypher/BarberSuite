@@ -10,11 +10,11 @@ const KPIs = [
 ]
 
 const REMINDERS = [
-  { id: 1, time: '14:30', client: 'Marcos T.', barber: 'José Shaper', service: 'Corte Degradê', status: 'Confirmado' },
-  { id: 2, time: '15:00', client: 'Lucas Pinheiro', barber: 'Carlos Barber', service: 'Corte Clássico', status: 'Enviado' },
-  { id: 3, time: '15:15', client: 'Fernando Silva', barber: 'José Shaper', service: 'Corte + Barba', status: 'Enviado' },
+  { id: 1, time: '14:30', client: 'Marcos T.', barber: 'Hygor Miguel', service: 'Corte Degradê', status: 'Confirmado' },
+  { id: 2, time: '15:00', client: 'Lucas Pinheiro', barber: 'Rhafael Barber', service: 'Corte Clássico', status: 'Enviado' },
+  { id: 3, time: '15:15', client: 'Fernando Silva', barber: 'Hygor Miguel', service: 'Corte + Barba', status: 'Enviado' },
   { id: 4, time: '16:00', client: 'Carlos Eduardo', barber: 'Rafael Nunes', service: 'Barba Terapia', status: 'Falha' },
-  { id: 5, time: '16:30', client: 'Pedro Alves', barber: 'Carlos Barber', service: 'Corte Degradê', status: 'Agendado' },
+  { id: 5, time: '16:30', client: 'Pedro Alves', barber: 'Rhafael Barber', service: 'Corte Degradê', status: 'Agendado' },
 ]
 
 const getStatusColor = (status: string) => {
@@ -156,7 +156,7 @@ export default function RemindersPage() {
               
               <div className="flex-1 p-3 flex flex-col justify-end bg-neutral-950">
                 <div className="bg-[#25D366] p-2.5 rounded-2xl rounded-br-sm text-[10px] text-white self-end max-w-[95%] leading-relaxed shadow-lg">
-                  Olá Marcos! Lembrete: você tem um agendamento na BarberSuite amanhã às 14:30 com José Shaper. Responda SIM p/ confirmar ou NAO p/ cancelar.
+                  Olá Marcos! Lembrete: você tem um agendamento na BarberSuite amanhã às 14:30 com Hygor Miguel. Responda SIM p/ confirmar ou NAO p/ cancelar.
                 </div>
               </div>
             </div>

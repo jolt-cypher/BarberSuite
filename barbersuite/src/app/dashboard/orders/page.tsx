@@ -201,8 +201,8 @@ export default function OrdersPage() {
   const loadMockData = () => {
     // Populate catalogs
     setBarbers([
-      { id: 'b1', name: 'José Shaper' },
-      { id: 'b2', name: 'Carlos Barber' },
+      { id: 'b1', name: 'Hygor Miguel' },
+      { id: 'b2', name: 'Rhafael Barber' },
       { id: 'b3', name: 'Rafael Nunes' }
     ])
     setSelectedBarberId('b1')

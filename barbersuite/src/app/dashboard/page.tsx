@@ -38,23 +38,27 @@ export default async function DashboardPage() {
   let daysLeft = 14
 
   if (isDemoMode) {
-    user = { id: 'demo-user-id', email: 'demo@barbeariasuite.com' }
+    const demoName = cookieStore.get('demo-barbershop-name')?.value
+    const demoSlug = cookieStore.get('demo-barbershop-slug')?.value
+    const demoEmail = cookieStore.get('demo-email')?.value
+
+    user = { id: 'demo-user-id', email: demoEmail ? decodeURIComponent(demoEmail) : 'demo@barbeariasuite.com' }
     barbershop = {
       id: 'demo-barbershop-id',
-      name: 'Barbearia Suite',
-      slug: 'demo-barbearia',
+      name: demoName ? decodeURIComponent(demoName) : 'Barbearia Suite',
+      slug: demoSlug ? decodeURIComponent(demoSlug) : 'demo-barbearia',
       plan: 'pro',
       plan_status: 'active',
       trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
     } as any
 
     todayApts = [
-      { id: '1', client_name: 'Arthur Santos', time: '09:00', barber: 'José Shaper', service: 'Corte Degradê', status: 'completed', price: 45 },
-      { id: '2', client_name: 'Gustavo Lima', time: '10:30', barber: 'Pablo Barber', service: 'Barba Terapia', status: 'completed', price: 35 },
-      { id: '3', client_name: 'Lucas Souza', time: '13:00', barber: 'José Shaper', service: 'Corte + Barba', status: 'in_progress', price: 75 },
-      { id: '4', client_name: 'Rodrigo Silva', time: '14:30', barber: 'Pablo Barber', service: 'Corte Degradê', status: 'confirmed', price: 45 },
-      { id: '5', client_name: 'Matheus Pereira', time: '16:00', barber: 'José Shaper', service: 'Cabelo, Barba e Sobrancelha', status: 'pending', price: 95 },
-      { id: '6', client_name: 'Felipe Santos', time: '17:30', barber: 'Pablo Barber', service: 'Corte Infantil', status: 'pending', price: 40 },
+      { id: '1', client_name: 'Arthur Santos', time: '09:00', barber: 'Hygor Miguel', service: 'Corte Degradê', status: 'completed', price: 45 },
+      { id: '2', client_name: 'Gustavo Lima', time: '10:30', barber: 'Rhafael Barber', service: 'Barba Terapia', status: 'completed', price: 35 },
+      { id: '3', client_name: 'Lucas Souza', time: '13:00', barber: 'Hygor Miguel', service: 'Corte + Barba', status: 'in_progress', price: 75 },
+      { id: '4', client_name: 'Rodrigo Silva', time: '14:30', barber: 'Rhafael Barber', service: 'Corte Degradê', status: 'confirmed', price: 45 },
+      { id: '5', client_name: 'Matheus Pereira', time: '16:00', barber: 'Hygor Miguel', service: 'Cabelo, Barba e Sobrancelha', status: 'pending', price: 95 },
+      { id: '6', client_name: 'Felipe Santos', time: '17:30', barber: 'Rhafael Barber', service: 'Corte Infantil', status: 'pending', price: 40 },
     ]
 
     revenueToday = 80
@@ -285,33 +289,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Trial Banner */}
-      {barbershop?.plan === 'trial' && (
-        <div className="bg-[#ffffff]/8 border border-[#ffffff]/25 rounded-2xl p-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#ffffff]/15 flex items-center justify-center flex-shrink-0">
-              <span className="text-lg">✨</span>
-            </div>
-            <div>
-              <p className="text-[#ffffff] font-semibold text-sm">Trial Gratuito Ativo</p>
-              <p className="text-neutral-400 text-xs mt-0.5">
-                {daysLeft > 0 ? `${daysLeft} dias restantes no seu período de avaliação` : 'Seu trial expirou!'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden md:block w-32 h-2 bg-neutral-800 rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#ffffff] to-[#ccffea]"
-                style={{ width: `${Math.max(0, Math.min(100, ((14 - daysLeft) / 14) * 100))}%` }}
-              />
-            </div>
-            <Link href="/dashboard/billing" className="btn-neon text-xs py-2 px-4 whitespace-nowrap">
-              Escolher Plano <ArrowRight size={12} />
-            </Link>
-          </div>
-        </div>
-      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

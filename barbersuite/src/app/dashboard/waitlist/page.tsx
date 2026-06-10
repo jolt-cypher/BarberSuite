@@ -14,8 +14,8 @@ type WaitlistEntry = { id: string; position: number; name: string; phone: string
 
 const MOCK_WAITLIST: WaitlistEntry[] = [
   { id: 'w1', position: 1, name: 'Marcos T.', phone: '(62) 99876-5432', service: 'Corte Degradê', barber: 'Qualquer um', timeIn: '14:05', waitTime: '45 min' },
-  { id: 'w2', position: 2, name: 'João Silva', phone: '(62) 98765-4321', service: 'Corte + Barba', barber: 'José Shaper', timeIn: '14:20', waitTime: '30 min' },
-  { id: 'w3', position: 3, name: 'Lucas Pinheiro', phone: '(62) 99123-4567', service: 'Pézinho', barber: 'Carlos Barber', timeIn: '14:40', waitTime: '10 min' },
+  { id: 'w2', position: 2, name: 'João Silva', phone: '(62) 98765-4321', service: 'Corte + Barba', barber: 'Hygor Miguel', timeIn: '14:20', waitTime: '30 min' },
+  { id: 'w3', position: 3, name: 'Lucas Pinheiro', phone: '(62) 99123-4567', service: 'Pézinho', barber: 'Rhafael Barber', timeIn: '14:40', waitTime: '10 min' },
 ]
 
 const MOCK_HISTORY = [
@@ -165,8 +165,8 @@ export default function WaitlistPage() {
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Preferência de Barbeiro</label>
             <select className="premium-input w-full appearance-none">
               <option>Qualquer um (Mais rápido)</option>
-              <option>José Shaper</option>
-              <option>Carlos Barber</option>
+              <option>Hygor Miguel</option>
+              <option>Rhafael Barber</option>
             </select>
           </div>
 

@@ -47,7 +47,6 @@ const navGroups = [
     label: 'Sistema',
     items: [
       { href: '/dashboard/settings',    icon: Settings,        label: 'Configurações', id: 'configuracoes' },
-      { href: '/dashboard/billing',     icon: CreditCard,      label: 'Plano',         id: 'plano' },
     ],
   },
 ]
@@ -73,15 +72,19 @@ export default async function DashboardLayout({
   let matchedBarber = null
 
   if (isDemoMode) {
+    const demoName = cookieStore.get('demo-barbershop-name')?.value
+    const demoSlug = cookieStore.get('demo-barbershop-slug')?.value
+    const demoEmail = cookieStore.get('demo-email')?.value
+
     user = {
       id: 'demo-user-id',
-      email: 'demo@barbeariasuite.com',
+      email: demoEmail ? decodeURIComponent(demoEmail) : 'demo@barbeariasuite.com',
     }
     barbershop = {
       id: 'demo-barbershop-id',
       owner_id: 'demo-user-id',
-      name: 'Barbearia Suite',
-      slug: 'demo-barbearia',
+      name: demoName ? decodeURIComponent(demoName) : 'Barbearia Suite',
+      slug: demoSlug ? decodeURIComponent(demoSlug) : 'demo-barbearia',
       plan: 'pro',
       plan_status: 'active',
       trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
@@ -192,13 +195,9 @@ export default async function DashboardLayout({
               </p>
               <div className="flex items-center gap-1 mt-0.5">
                 <span
-                  className="text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
-                  style={{
-                    backgroundColor: `${getPlanColor(barbershop?.plan ?? 'trial')}20`,
-                    color: getPlanColor(barbershop?.plan ?? 'trial'),
-                  }}
+                  className="text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-green-500/10 text-green-500"
                 >
-                  {PLAN_LABELS[barbershop?.plan ?? 'trial']}
+                  Ativo
                 </span>
               </div>
             </div>
