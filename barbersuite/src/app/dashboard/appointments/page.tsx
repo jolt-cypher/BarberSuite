@@ -215,6 +215,17 @@ export default function AppointmentsPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          {appointments.length > 0 && (
+            <button 
+              onClick={() => {
+                setSelectedAppointment(appointments[0])
+                setIsDetailModalOpen(true)
+              }} 
+              className="btn-outline py-2 text-xs border-blue-500 text-blue-500"
+            >
+              Testar Modal CRM
+            </button>
+          )}
           <button className="btn-outline py-2 text-xs">Bloquear Horário</button>
           <button onClick={() => setIsModalOpen(true)} className="btn-neon py-2 text-xs">
             <Plus size={16} /> Novo Agendamento
@@ -279,7 +290,7 @@ export default function AppointmentsPage() {
                   return (
                     <div
                       key={apt.id}
-                      className={`absolute left-1 right-1 rounded-md border-l-4 p-2 cursor-pointer hover:opacity-90 transition-opacity ${getStatusColor(apt.status)}`}
+                      className={`absolute left-1 right-1 z-20 rounded-md border-l-4 p-2 cursor-pointer hover:opacity-90 transition-opacity ${getStatusColor(apt.status)}`}
                       style={{
                         top: `${startIdx * 4}rem`,
                         height: `${height}rem`,
@@ -287,6 +298,7 @@ export default function AppointmentsPage() {
                       }}
                       onClick={(e) => {
                         e.stopPropagation()
+                        alert(`Clicou no agendamento: ${apt.client_name}`)
                         setSelectedAppointment(apt)
                         setIsDetailModalOpen(true)
                       }}

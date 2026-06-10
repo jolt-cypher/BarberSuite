@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Calendar, Clock, DollarSign, CheckCircle2, Trash2, Loader2, User } from 'lucide-react'
+import { X, Calendar, Clock, DollarSign, Check, Trash, Loader2, User } from 'lucide-react'
 import { Appointment, PaymentMethod } from '@/lib/types'
 import { useAppointmentActions } from '@/hooks/useAppointmentActions'
 import { formatCurrency } from '@/lib/utils'
@@ -143,7 +143,7 @@ export function AppointmentDetailModal({ appointment, barbershopId, isOpen, onCl
               {/* Status & Actions Workflow */}
               {appointment.status === 'completed' ? (
                 <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-xl flex items-center justify-center gap-2">
-                  <CheckCircle2 size={18} className="text-green-500" />
+                  <Check size={18} className="text-green-500" />
                   <span className="text-sm font-bold text-green-500 uppercase tracking-wide">Atendimento Concluído</span>
                 </div>
               ) : showCompleteForm ? (
@@ -214,13 +214,13 @@ export function AppointmentDetailModal({ appointment, barbershopId, isOpen, onCl
                     onClick={() => setShowDeleteConfirm(true)} 
                     className="p-3 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2 flex-shrink-0"
                   >
-                    <Trash2 size={16} />
+                    <Trash size={16} />
                   </button>
                   <button 
                     onClick={() => setShowCompleteForm(true)} 
                     className="btn-neon flex-1 py-3 justify-center"
                   >
-                    <CheckCircle2 size={18} /> Marcar como Concluído
+                    <Check size={18} /> Marcar como Concluído
                   </button>
                 </div>
               )}
@@ -251,7 +251,7 @@ export function AppointmentDetailModal({ appointment, barbershopId, isOpen, onCl
                     {history.length > 0 ? history.map((apt, idx) => (
                       <div key={apt.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                         <div className="flex items-center justify-center w-10 h-10 rounded-full border border-neutral-800 bg-neutral-900 text-neutral-500 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                          {apt.status === 'completed' ? <CheckCircle2 size={14} className="text-green-500" /> : <Clock size={14} />}
+                          {apt.status === 'completed' ? <Check size={14} className="text-green-500" /> : <Clock size={14} />}
                         </div>
                         <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-3 rounded-lg border border-neutral-800 bg-neutral-900/50 hover:bg-neutral-900 transition-colors">
                           <div className="flex items-center justify-between mb-1">
